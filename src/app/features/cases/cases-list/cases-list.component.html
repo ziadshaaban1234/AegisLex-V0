@@ -1,0 +1,263 @@
+<div class="cases-page page-enter">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="section-title">{{ lang.t('cases.title') }}</h1>
+      <p class="section-subtitle">{{ lang.t('cases.subtitle', [total(), cases().length]) }}</p>
+    </div>
+    <a routerLink="/app/cases/new" class="btn-primary">
+      <span class="material-icons" aria-hidden="true">add</span>
+      {{ lang.t('cases.new_case') }}
+    </a>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="filters-bar">
+    <div class="filters-bar__search">
+      <span class="material-icons" aria-hidden="true">search</span>
+      <input
+        type="text"
+        [placeholder]="lang.t('cases.search_placeholder')"
+        [attr.aria-label]="lang.t('cases.search_aria')"
+        [value]="searchQuery()"
+        (input)="onSearch($event)"
+        class="filters-bar__search-input"
+      />
+    </div>
+
+    <select class="filter-select" [attr.aria-label]="lang.t('cases.filter_status_aria')"
+      [value]="selectedStatus()"
+      (change)="selectedStatus.set($any($event.target).value); onFilterChange()">
+      <option *ngFor="let s of statusOptions()" [value]="s.value">{{ s.label }}</option>
+    </select>
+
+    <select class="filter-select" [attr.aria-label]="lang.t('cases.filter_type_aria')"
+      [value]="selectedType()"
+      (change)="selectedType.set($any($event.target).value); onFilterChange()">
+      <option *ngFor="let t of typeOptions()" [value]="t.value">{{ t.label }}</option>
+    </select>
+
+    <select class="filter-select" [attr.aria-label]="lang.t('cases.filter_priority_aria')"
+      [value]="selectedPriority()"
+      (change)="selectedPriority.set($any($event.target).value); onFilterChange()">
+      <option *ngFor="let p of priorityOptions()" [value]="p.value">{{ p.label }}</option>
+    </select>
+
+    <div class="view-toggle">
+      <button [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')"
+              [attr.aria-label]="lang.t('cases.view_list_aria')">
+        <span class="material-icons" aria-hidden="true">view_list</span>
+      </button>
+      <button [class.active]="viewMode() === 'grid'" (click)="viewMode.set('grid')"
+              [attr.aria-label]="lang.t('cases.view_grid_aria')">
+        <span class="material-icons" aria-hidden="true">grid_view</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <ng-container *ngIf="loading()">
+    <div class="csk-table-wrap">
+      <div class="csk-table-header">
+        <div class="sk" style="width:24px;height:14px;border-radius:4px;"></div>
+        <div class="sk" style="width:220px;height:13px;border-radius:4px;flex:1;"></div>
+        <div class="sk" style="width:90px;height:13px;border-radius:4px;"></div>
+        <div class="sk" style="width:80px;height:13px;border-radius:4px;"></div>
+        <div class="sk" style="width:70px;height:13px;border-radius:4px;"></div>
+        <div class="sk" style="width:60px;height:13px;border-radius:4px;"></div>
+        <div class="sk" style="width:50px;height:13px;border-radius:4px;"></div>
+      </div>
+      <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="csk-table-row">
+        <div class="sk" style="width:4px;height:44px;border-radius:4px;flex-shrink:0;"></div>
+        <div class="sk" style="width:72px;height:13px;border-radius:4px;flex-shrink:0;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
+          <div class="sk" [style.width]="(42 + (i % 4) * 12) + '%'" style="height:15px;border-radius:4px;"></div>
+          <div class="sk" [style.width]="(25 + (i % 3) * 8) + '%'" style="height:12px;border-radius:4px;"></div>
+        </div>
+        <div class="sk sk--pill" style="width:88px;height:24px;flex-shrink:0;"></div>
+        <div class="sk sk--pill" style="width:76px;height:24px;flex-shrink:0;"></div>
+        <div class="sk sk--pill" style="width:52px;height:24px;flex-shrink:0;"></div>
+        <div class="sk" style="width:58px;height:12px;border-radius:4px;flex-shrink:0;"></div>
+        <div class="sk sk--rounded" style="width:32px;height:32px;flex-shrink:0;"></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && cases().length === 0" class="cases-empty">
+    <div class="cases-empty__icon"><span class="material-icons" aria-hidden="true">folder_open</span></div>
+    <h3>{{ lang.t('cases.empty.title') }}</h3>
+    <p>{{ searchQuery() || selectedStatus() ? lang.t('cases.empty.filter_hint') : lang.t('cases.empty.create_hint') }}</p>
+    <a routerLink="/app/cases/new" class="btn-primary">
+      <span class="material-icons" aria-hidden="true">add</span>
+      {{ lang.t('cases.new_case') }}
+    </a>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="!loading() && cases().length > 0 && viewMode() === 'list'" class="cases-table-wrap">
+    <table class="cases-table">
+      <thead>
+        <tr>
+          <th>{{ lang.t('cases.table.case') }}</th>
+          <th class="cases-table__head-cell cases-table__head-cell--type">{{ lang.t('cases.table.type') }}</th>
+          <th class="cases-table__head-cell cases-table__head-cell--client">{{ lang.t('cases.table.client') }}</th>
+          <th class="cases-table__head-cell cases-table__head-cell--priority">{{ lang.t('cases.table.priority') }}</th>
+          <th class="cases-table__head-cell cases-table__head-cell--status">{{ lang.t('cases.table.status') }}</th>
+          <th>{{ lang.t('cases.table.risk') }}</th>
+          <th class="cases-table__head-cell cases-table__head-cell--date">{{ lang.t('cases.table.updated') }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let case_ of cases(); trackBy: trackById" class="cases-table__row">
+          <td>
+            <a [routerLink]="['/app/cases', case_.id]" class="case-link">
+              <div class="case-link__title">{{ case_.title }}</div>
+              <div class="case-link__number">{{ case_.caseNumber }}</div>
+            </a>
+          </td>
+          <td class="cases-table__cell cases-table__cell--type">
+            <div class="case-type-cell">
+              <span class="material-icons case-type-icon" aria-hidden="true">{{ getCaseTypeIcon(case_.caseType) }}</span>
+              {{ case_.caseType | titlecase }}
+            </div>
+          </td>
+          <td class="cases-table__cell cases-table__cell--client">
+            <span class="case-client">{{ case_.clientName || '—' }}</span>
+          </td>
+          <td class="cases-table__cell cases-table__cell--priority">
+            <span class="priority-badge"
+              [style.color]="getPriorityConfig(case_.priority).color"
+              [style.background]="getPriorityConfig(case_.priority).bg">
+              {{ getPriorityConfig(case_.priority).label }}
+            </span>
+          </td>
+          <td class="cases-table__cell cases-table__cell--status">
+            <span class="status-badge"
+              [style.color]="getStatusConfig(case_.status).color"
+              [style.background]="getStatusConfig(case_.status).bg">
+              {{ getStatusConfig(case_.status).label }}
+            </span>
+          </td>
+          <td>
+            <div *ngIf="case_.riskScore !== undefined" class="risk-score-cell">
+              <div class="risk-score-bar">
+                <div class="risk-score-bar__fill"
+                  [style.width.%]="case_.riskScore"
+                  [style.background]="case_.riskScore >= 70 ? '#ef4444' : case_.riskScore >= 40 ? '#eab308' : '#22c55e'">
+                </div>
+              </div>
+              <span [style.color]="case_.riskScore >= 70 ? '#ef4444' : case_.riskScore >= 40 ? '#eab308' : '#22c55e'">
+                {{ case_.riskScore }}
+              </span>
+            </div>
+            <span *ngIf="case_.riskScore === undefined" class="text-muted">—</span>
+          </td>
+          <td class="cases-table__cell cases-table__cell--date">
+            <span class="case-date">{{ formatDate(case_.updatedAt) }}</span>
+          </td>
+          <td>
+            <div class="case-actions">
+              <a [routerLink]="['/app/cases', case_.id]" class="case-action-btn"
+                 [title]="lang.t('cases.action.view')">
+                <span class="material-icons" aria-hidden="true">open_in_new</span>
+              </a>
+              <a [routerLink]="['/app/chat']" [queryParams]="{caseId: case_.id}" class="case-action-btn"
+                 [title]="lang.t('cases.action.chat')">
+                <span class="material-icons" aria-hidden="true">smart_toy</span>
+              </a>
+              <button class="case-action-btn case-action-btn--danger"
+                (click)="showDeleteConfirm.set(case_.id)"
+                [attr.aria-label]="lang.t('cases.action.delete_aria')">
+                <span class="material-icons" aria-hidden="true">delete_outline</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Grid View -->
+  <div *ngIf="!loading() && cases().length > 0 && viewMode() === 'grid'" class="cases-grid stagger-children">
+    <a *ngFor="let case_ of cases(); trackBy: trackById"
+       [routerLink]="['/app/cases', case_.id]" class="case-card">
+      <div class="case-card__header">
+        <div class="case-card__type-icon">
+          <span class="material-icons" aria-hidden="true">{{ getCaseTypeIcon(case_.caseType) }}</span>
+        </div>
+        <div class="case-card__badges">
+          <span class="priority-badge"
+            [style.color]="getPriorityConfig(case_.priority).color"
+            [style.background]="getPriorityConfig(case_.priority).bg">
+            {{ getPriorityConfig(case_.priority).label }}
+          </span>
+          <span class="status-badge"
+            [style.color]="getStatusConfig(case_.status).color"
+            [style.background]="getStatusConfig(case_.status).bg">
+            {{ getStatusConfig(case_.status).label }}
+          </span>
+        </div>
+      </div>
+      <div class="case-card__body">
+        <h3 class="case-card__title">{{ case_.title }}</h3>
+        <p class="case-card__number">{{ case_.caseNumber }}</p>
+        <p *ngIf="case_.clientName" class="case-card__client">
+          <span class="material-icons" aria-hidden="true">person</span>{{ case_.clientName }}
+        </p>
+      </div>
+      <div *ngIf="case_.riskScore !== undefined" class="case-card__risk">
+        <div class="case-card__risk-label">
+          <span>{{ lang.t('cases.card.risk_score') }}</span>
+          <span [style.color]="case_.riskScore >= 70 ? '#ef4444' : case_.riskScore >= 40 ? '#eab308' : '#22c55e'">
+            {{ case_.riskScore }}/100
+          </span>
+        </div>
+        <div class="risk-score-bar">
+          <div class="risk-score-bar__fill"
+            [style.width.%]="case_.riskScore"
+            [style.background]="case_.riskScore >= 70 ? '#ef4444' : case_.riskScore >= 40 ? '#eab308' : '#22c55e'">
+          </div>
+        </div>
+      </div>
+      <div class="case-card__footer">
+        <div *ngIf="case_.tags?.length" class="case-card__tags">
+          <span *ngFor="let tag of case_.tags.slice(0,2)" class="case-tag">{{ tag }}</span>
+        </div>
+        <span class="case-card__date">{{ formatDate(case_.updatedAt) }}</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages() > 1" class="pagination">
+    <button class="pagination__btn" [disabled]="page() === 1" (click)="goToPage(page() - 1)"
+            [attr.aria-label]="lang.t('cases.pagination.prev_aria')">
+      <span class="material-icons" aria-hidden="true">chevron_left</span>
+    </button>
+    <span class="pagination__info">{{ lang.t('cases.pagination.page_of', [page(), totalPages()]) }}</span>
+    <button class="pagination__btn" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)"
+            [attr.aria-label]="lang.t('cases.pagination.next_aria')">
+      <span class="material-icons" aria-hidden="true">chevron_right</span>
+    </button>
+  </div>
+
+  <!-- Delete Confirm Dialog -->
+  <div *ngIf="showDeleteConfirm()" class="modal-overlay" (click)="showDeleteConfirm.set(null)">
+    <div class="confirm-dialog" role="dialog" aria-modal="true"
+         aria-labelledby="delete-case-title" aria-describedby="delete-case-desc"
+         (click)="$event.stopPropagation()">
+      <div class="confirm-dialog__icon">
+        <span class="material-icons" aria-hidden="true">delete_forever</span>
+      </div>
+      <h3 id="delete-case-title">{{ lang.t('cases.delete.title') }}</h3>
+      <p id="delete-case-desc">{{ lang.t('cases.delete.body') }}</p>
+      <div class="confirm-dialog__actions">
+        <button class="btn-secondary" (click)="showDeleteConfirm.set(null)">{{ lang.t('cases.delete.cancel') }}</button>
+        <button class="btn-danger" (click)="deleteCase(showDeleteConfirm()!)">{{ lang.t('cases.delete.confirm') }}</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,420 @@
+<div class="chat-layout">
+
+  <!-- Sessions Sidebar -->
+  <aside class="chat-sidebar" [class.chat-sidebar--open]="sidebarOpen()">
+    <div class="chat-sidebar__header">
+      <h3 class="chat-sidebar__title">{{ lang.t('chat.sidebar.title') }}</h3>
+      <div class="chat-sidebar__header-actions">
+        <button class="chat-sidebar__new-btn" (click)="createNewSession()" [title]="lang.t('chat.sidebar.new_chat')"
+                [attr.aria-label]="lang.t('chat.sidebar.new_chat_aria')">
+          <span class="material-icons">add</span>
+        </button>
+        <button class="chat-sidebar__close-btn" (click)="toggleSidebar()" [title]="lang.t('chat.sidebar.title')"
+                [attr.aria-label]="lang.t('chat.sidebar.close_aria')">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-sidebar__search">
+      <span class="material-icons">search</span>
+      <input type="text" [placeholder]="lang.t('chat.sidebar.search_placeholder')" [attr.aria-label]="lang.t('chat.sidebar.search_aria')" class="chat-sidebar__search-input" />
+    </div>
+
+    <div class="chat-sidebar__sessions">
+      <div *ngIf="isLoadingSessions()" class="chat-sidebar__loading">
+        <div *ngFor="let i of [1,2,3,4]" class="chat-session-skeleton">
+          <div class="skeleton" style="width:32px;height:32px;border-radius:8px;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+            <div class="skeleton skeleton-text" style="width:70%;"></div>
+            <div class="skeleton skeleton-text--sm" style="width:45%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngFor="let session of sessions(); trackBy: trackBySessionId"
+        class="chat-session-item"
+        [class.chat-session-item--active]="activeSession()?.id === session.id"
+        (click)="selectSession(session.id)"
+      >
+        <div class="chat-session-item__icon">
+          <span class="material-icons">chat</span>
+        </div>
+        <div class="chat-session-item__info">
+          <p class="chat-session-item__title">{{ getSessionTitle(session) }}</p>
+          <span class="chat-session-item__date">{{ formatSessionDate(session.updatedAt) }}</span>
+        </div>
+        <button
+          class="chat-session-item__delete"
+          (click)="deleteSession(session.id, $event)"
+          [title]="lang.t('common.delete')"
+          [attr.aria-label]="lang.t('chat.sidebar.delete_aria')"
+        >
+          <span class="material-icons">delete_outline</span>
+        </button>
+      </div>
+
+      <div *ngIf="!isLoadingSessions() && sessions().length === 0" class="chat-sidebar__empty">
+        <span class="material-icons">chat_bubble_outline</span>
+        <p>{{ lang.t('chat.sidebar.empty_title') }}</p>
+        <p>{{ lang.t('chat.sidebar.empty_subtitle') }}</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Chat Area -->
+  <div class="chat-main">
+
+    <!-- Chat Navbar -->
+    <div class="chat-navbar">
+      <button class="chat-navbar__toggle" (click)="toggleSidebar()" [attr.aria-label]="lang.t('chat.sidebar.toggle_aria')">
+        <span class="material-icons">menu</span>
+      </button>
+
+      <div class="chat-navbar__identity">
+        <div class="saul-avatar-sm">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="saul-icon-svg saul-icon-svg--sm">
+            <ellipse cx="40" cy="30" rx="17" ry="19" fill="#f5c8a0"/>
+            <path d="M23 22 Q25 8 40 10 Q55 8 57 22 Q52 14 40 15 Q28 14 23 22Z" fill="#6b4226"/>
+            <path d="M23 22 Q20 28 22 36 Q21 32 23 26Z" fill="#6b4226"/>
+            <path d="M57 22 Q60 28 58 36 Q59 32 57 26Z" fill="#6b4226"/>
+            <ellipse cx="23" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+            <ellipse cx="57" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+            <ellipse cx="33" cy="28" rx="4" ry="3.5" fill="white"/>
+            <ellipse cx="47" cy="28" rx="4" ry="3.5" fill="white"/>
+            <circle cx="34" cy="28.5" r="2.2" fill="#3d2c1e"/>
+            <circle cx="47.5" cy="28.5" r="2.2" fill="#3d2c1e"/>
+            <circle cx="35" cy="27.5" r="0.8" fill="white"/>
+            <circle cx="48.5" cy="27.5" r="0.8" fill="white"/>
+            <path d="M29 23.5 Q33 22 37 23" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M43 23 Q47 22 51 23.5" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M38 33 Q40 36 42 33" stroke="#d4956a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <path d="M32 39 Q40 44 48 39" stroke="#c97a50" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <rect x="35" y="47" width="10" height="8" rx="2" fill="#f0b98a"/>
+            <path d="M15 80 L20 55 Q28 50 35 55 L40 60 L45 55 Q52 50 60 55 L65 80Z" fill="#2c3e50"/>
+            <path d="M35 55 L40 60 L45 55 L43 80 L37 80Z" fill="#ecf0f1"/>
+            <path d="M38 56 L40 61 L42 56 L41 78 L40 80 L39 78Z" fill="#f0b429"/>
+            <path d="M38 56 L40 58 L42 56 L40 61Z" fill="#d4950a"/>
+            <path d="M35 55 L28 62 L32 58 L35 60Z" fill="#34495e"/>
+            <path d="M45 55 L52 62 L48 58 L45 60Z" fill="#34495e"/>
+          </svg>
+          <span class="saul-online-dot"></span>
+        </div>
+        <div>
+          <h3 class="chat-navbar__name">Saul</h3>
+          <p class="chat-navbar__status">{{ lang.t('chat.navbar.status') }}</p>
+        </div>
+      </div>
+
+      <div class="chat-navbar__actions">
+        <!-- Attached docs indicator -->
+        <div *ngIf="attachedDocumentIds().length > 0" class="chat-navbar__docs-badge">
+          <span class="material-icons">attach_file</span>
+          {{ attachedDocumentIds().length }} {{ attachedDocumentIds().length > 1 ? lang.t('chat.navbar.docs_badge_plural') : lang.t('chat.navbar.docs_badge_singular') }}
+        </div>
+
+        <button class="chat-navbar__btn" (click)="createNewSession()" [title]="lang.t('chat.sidebar.new_chat')" [attr.aria-label]="lang.t('chat.navbar.new_chat_aria')">
+          <span class="material-icons">add_comment</span>
+        </button>
+        <a routerLink="/app/settings" class="chat-navbar__btn" [title]="lang.t('nav.settings')">
+          <span class="material-icons">tune</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Attached Documents Bar -->
+    <div *ngIf="attachedDocumentIds().length > 0" class="chat-attachments-bar">
+      <span class="chat-attachments-bar__label">{{ lang.t('chat.attachments.label') }}</span>
+      <div
+        *ngFor="let docId of attachedDocumentIds()"
+        class="chat-attachment-chip"
+      >
+        <span class="material-icons">description</span>
+        {{ getAttachedDocumentName(docId) }}
+        <button (click)="removeAttachedDocument(docId)" [attr.aria-label]="lang.t('chat.attachments.remove_aria')">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages Area -->
+    <div class="chat-messages">
+
+      <!-- Empty State / Welcome -->
+      <div *ngIf="messages().length === 0 && !isLoadingMessages()" class="chat-welcome">
+        <div class="chat-welcome__avatar">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="saul-icon-svg">
+            <!-- Head -->
+            <ellipse cx="40" cy="30" rx="17" ry="19" fill="#f5c8a0"/>
+            <!-- Hair (slicked back) -->
+            <path d="M23 22 Q25 8 40 10 Q55 8 57 22 Q52 14 40 15 Q28 14 23 22Z" fill="#6b4226"/>
+            <!-- Side hair -->
+            <path d="M23 22 Q20 28 22 36 Q21 32 23 26Z" fill="#6b4226"/>
+            <path d="M57 22 Q60 28 58 36 Q59 32 57 26Z" fill="#6b4226"/>
+            <!-- Ears -->
+            <ellipse cx="23" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+            <ellipse cx="57" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+            <!-- Eyes -->
+            <ellipse cx="33" cy="28" rx="4" ry="3.5" fill="white"/>
+            <ellipse cx="47" cy="28" rx="4" ry="3.5" fill="white"/>
+            <circle cx="34" cy="28.5" r="2.2" fill="#3d2c1e"/>
+            <circle cx="47.5" cy="28.5" r="2.2" fill="#3d2c1e"/>
+            <circle cx="35" cy="27.5" r="0.8" fill="white"/>
+            <circle cx="48.5" cy="27.5" r="0.8" fill="white"/>
+            <!-- Eyebrows (slightly raised - Saul's confident look) -->
+            <path d="M29 23.5 Q33 22 37 23" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M43 23 Q47 22 51 23.5" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <!-- Nose -->
+            <path d="M38 33 Q40 36 42 33" stroke="#d4956a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <!-- Smile (Saul's charming grin) -->
+            <path d="M32 39 Q40 44 48 39" stroke="#c97a50" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M33 39 Q40 43 47 39" fill="#e8967a" opacity="0.4"/>
+            <!-- Neck -->
+            <rect x="35" y="47" width="10" height="8" rx="2" fill="#f0b98a"/>
+            <!-- Suit jacket -->
+            <path d="M15 80 L20 55 Q28 50 35 55 L40 60 L45 55 Q52 50 60 55 L65 80Z" fill="#2c3e50"/>
+            <!-- Shirt -->
+            <path d="M35 55 L40 60 L45 55 L43 80 L37 80Z" fill="#ecf0f1"/>
+            <!-- Yellow tie (Saul's signature) -->
+            <path d="M38 56 L40 61 L42 56 L41 78 L40 80 L39 78Z" fill="#f0b429"/>
+            <path d="M38 56 L40 58 L42 56 L40 61Z" fill="#d4950a"/>
+            <!-- Lapels -->
+            <path d="M35 55 L28 62 L32 58 L35 60Z" fill="#34495e"/>
+            <path d="M45 55 L52 62 L48 58 L45 60Z" fill="#34495e"/>
+          </svg>
+        </div>
+        <h2 class="chat-welcome__title">{{ lang.t('chat.welcome.title') }}</h2>
+        <p class="chat-welcome__subtitle">
+          {{ lang.t('chat.welcome.subtitle') }}
+        </p>
+
+        <div class="chat-welcome__prompts">
+          <p class="chat-welcome__prompts-label">{{ lang.t('chat.welcome.prompts_label') }}</p>
+          <div class="chat-welcome__prompt-grid">
+            <button
+              *ngFor="let prompt of suggestedPrompts"
+              class="chat-welcome__prompt-btn"
+              (click)="useSuggestedPrompt(prompt)"
+            >
+              {{ prompt }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading messages -->
+      <div *ngIf="isLoadingMessages()" class="chat-messages__loading">
+        <div class="chat-msg-skeleton chat-msg-skeleton--saul">
+          <div class="skeleton" style="width:32px;height:32px;border-radius:50%;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;max-width:60%;">
+            <div class="skeleton skeleton-text" style="width:90%;"></div>
+            <div class="skeleton skeleton-text" style="width:75%;"></div>
+            <div class="skeleton skeleton-text--sm" style="width:40%;"></div>
+          </div>
+        </div>
+        <div class="chat-msg-skeleton chat-msg-skeleton--user">
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;max-width:50%;align-items:flex-end;">
+            <div class="skeleton skeleton-text" style="width:85%;"></div>
+            <div class="skeleton skeleton-text--sm" style="width:50%;"></div>
+          </div>
+        </div>
+        <div class="chat-msg-skeleton chat-msg-skeleton--saul">
+          <div class="skeleton" style="width:32px;height:32px;border-radius:50%;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;max-width:70%;">
+            <div class="skeleton skeleton-text" style="width:95%;"></div>
+            <div class="skeleton skeleton-text" style="width:80%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message list -->
+      <div class="chat-messages__list" *ngIf="messages().length > 0">
+        <div
+          *ngFor="let msg of messages(); trackBy: trackById"
+          class="chat-message"
+          [class.chat-message--user]="msg.role === 'user'"
+          [class.chat-message--saul]="msg.role === 'saul'"
+        >
+          <!-- Avatar -->
+          <div class="chat-message__avatar" *ngIf="msg.role === 'saul'">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="saul-icon-svg saul-icon-svg--msg">
+              <ellipse cx="40" cy="30" rx="17" ry="19" fill="#f5c8a0"/>
+              <path d="M23 22 Q25 8 40 10 Q55 8 57 22 Q52 14 40 15 Q28 14 23 22Z" fill="#6b4226"/>
+              <ellipse cx="23" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+              <ellipse cx="57" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+              <ellipse cx="33" cy="28" rx="4" ry="3.5" fill="white"/>
+              <ellipse cx="47" cy="28" rx="4" ry="3.5" fill="white"/>
+              <circle cx="34" cy="28.5" r="2.2" fill="#3d2c1e"/>
+              <circle cx="47.5" cy="28.5" r="2.2" fill="#3d2c1e"/>
+              <circle cx="35" cy="27.5" r="0.8" fill="white"/>
+              <circle cx="48.5" cy="27.5" r="0.8" fill="white"/>
+              <path d="M29 23.5 Q33 22 37 23" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <path d="M43 23 Q47 22 51 23.5" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <path d="M38 33 Q40 36 42 33" stroke="#d4956a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+              <path d="M32 39 Q40 44 48 39" stroke="#c97a50" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <rect x="35" y="47" width="10" height="8" rx="2" fill="#f0b98a"/>
+              <path d="M15 80 L20 55 Q28 50 35 55 L40 60 L45 55 Q52 50 60 55 L65 80Z" fill="#2c3e50"/>
+              <path d="M35 55 L40 60 L45 55 L43 80 L37 80Z" fill="#ecf0f1"/>
+              <path d="M38 56 L40 61 L42 56 L41 78 L40 80 L39 78Z" fill="#f0b429"/>
+              <path d="M38 56 L40 58 L42 56 L40 61Z" fill="#d4950a"/>
+              <path d="M35 55 L28 62 L32 58 L35 60Z" fill="#34495e"/>
+              <path d="M45 55 L52 62 L48 58 L45 60Z" fill="#34495e"/>
+            </svg>
+          </div>
+
+          <!-- Bubble -->
+          <div class="chat-message__bubble">
+            <!-- Saul tools used -->
+            <div *ngIf="msg.toolsUsed?.length && msg.role === 'saul'" class="chat-message__tools">
+              <span class="material-icons">build</span>
+              Used: {{ msg.toolsUsed!.join(', ') }}
+            </div>
+
+            <!-- Content -->
+            <div
+              class="chat-message__content"
+              [class.chat-message__content--streaming]="msg.isStreaming"
+              [innerHTML]="formatMessageContent(msg.content)"
+            ></div>
+
+            <!-- Streaming cursor -->
+            <span *ngIf="msg.isStreaming" class="streaming-cursor">▋</span>
+
+            <!-- Timestamp -->
+            <span class="chat-message__time">
+              {{ msg.isStreaming ? lang.t('chat.msg.thinking') : formatSessionDate(msg.createdAt) }}
+            </span>
+          </div>
+
+          <!-- User avatar -->
+          <div class="chat-message__avatar chat-message__avatar--user" *ngIf="msg.role === 'user'">
+            {{ userInitials }}
+          </div>
+        </div>
+
+        <!-- Typing indicator (before stream starts) -->
+        <div *ngIf="isStreaming() && streamingContent() === ''" class="chat-message chat-message--saul">
+          <div class="chat-message__avatar">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="saul-icon-svg saul-icon-svg--msg">
+              <ellipse cx="40" cy="30" rx="17" ry="19" fill="#f5c8a0"/>
+              <path d="M23 22 Q25 8 40 10 Q55 8 57 22 Q52 14 40 15 Q28 14 23 22Z" fill="#6b4226"/>
+              <ellipse cx="23" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+              <ellipse cx="57" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+              <ellipse cx="33" cy="28" rx="4" ry="3.5" fill="white"/>
+              <ellipse cx="47" cy="28" rx="4" ry="3.5" fill="white"/>
+              <circle cx="34" cy="28.5" r="2.2" fill="#3d2c1e"/>
+              <circle cx="47.5" cy="28.5" r="2.2" fill="#3d2c1e"/>
+              <circle cx="35" cy="27.5" r="0.8" fill="white"/>
+              <circle cx="48.5" cy="27.5" r="0.8" fill="white"/>
+              <path d="M29 23.5 Q33 22 37 23" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <path d="M43 23 Q47 22 51 23.5" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <path d="M38 33 Q40 36 42 33" stroke="#d4956a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+              <path d="M32 39 Q40 44 48 39" stroke="#c97a50" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              <rect x="35" y="47" width="10" height="8" rx="2" fill="#f0b98a"/>
+              <path d="M15 80 L20 55 Q28 50 35 55 L40 60 L45 55 Q52 50 60 55 L65 80Z" fill="#2c3e50"/>
+              <path d="M35 55 L40 60 L45 55 L43 80 L37 80Z" fill="#ecf0f1"/>
+              <path d="M38 56 L40 61 L42 56 L41 78 L40 80 L39 78Z" fill="#f0b429"/>
+              <path d="M38 56 L40 58 L42 56 L40 61Z" fill="#d4950a"/>
+              <path d="M35 55 L28 62 L32 58 L35 60Z" fill="#34495e"/>
+              <path d="M45 55 L52 62 L48 58 L45 60Z" fill="#34495e"/>
+            </svg>
+          </div>
+          <div class="chat-message__bubble">
+            <div class="typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div #messagesEnd></div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="chat-input-area">
+
+      <!-- Document Picker -->
+      <div *ngIf="showDocumentPicker()" class="chat-doc-picker">
+        <div class="chat-doc-picker__header">
+          <h4>{{ lang.t('chat.doc_picker.title') }}</h4>
+          <button (click)="toggleDocumentPicker()" [attr.aria-label]="lang.t('chat.doc_picker.close_aria')">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="chat-doc-picker__list">
+          <div
+            *ngFor="let doc of availableDocuments()"
+            class="chat-doc-picker__item"
+            [class.chat-doc-picker__item--selected]="isDocumentAttached(doc.id)"
+            (click)="toggleDocument(doc.id)"
+          >
+            <span class="material-icons">description</span>
+            <div class="chat-doc-picker__item-info">
+              <p>{{ doc.originalName }}</p>
+              <span>{{ doc.fileType.toUpperCase() }} · {{ (doc.fileSize / 1024 / 1024).toFixed(1) }}MB</span>
+            </div>
+            <span class="material-icons check-icon" *ngIf="isDocumentAttached(doc.id)">check_circle</span>
+          </div>
+          <div *ngIf="availableDocuments().length === 0" class="chat-doc-picker__empty">
+            <p>{{ lang.t('chat.doc_picker.empty') }} <a routerLink="/app/upload">{{ lang.t('chat.doc_picker.upload_link') }}</a></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Container -->
+      <div class="chat-input-container">
+        <div class="chat-input-box">
+          <button
+            class="chat-input-action-btn"
+            (click)="toggleDocumentPicker()"
+            [class.active]="attachedDocumentIds().length > 0"
+            [title]="lang.t('chat.input.attach_aria')"
+            [attr.aria-label]="lang.t('chat.input.attach_aria')"
+          >
+            <span class="material-icons">attach_file</span>
+          </button>
+
+          <textarea
+            #messageInput
+            class="chat-input"
+            [value]="inputMessage()"
+            (input)="onInputChange($event)"
+            (keydown)="onKeydown($event)"
+            [placeholder]="lang.t('chat.input.placeholder')"
+            [attr.aria-label]="lang.t('chat.input.aria')"
+            rows="1"
+            [disabled]="isStreaming()"
+          ></textarea>
+
+          <div class="chat-input-right">
+            <button
+              *ngIf="isStreaming()"
+              class="chat-stop-btn"
+              (click)="stopStreaming()"
+              [title]="lang.t('common.close')"
+              [attr.aria-label]="lang.t('chat.input.stop_aria')"
+            >
+              <span class="material-icons">stop</span>
+            </button>
+            <button
+              *ngIf="!isStreaming()"
+              class="chat-send-btn"
+              [class.chat-send-btn--active]="inputMessage().trim().length > 0"
+              [disabled]="!inputMessage().trim()"
+              (click)="sendMessage()"
+              [title]="lang.t('common.submit')"
+              [attr.aria-label]="lang.t('chat.input.send_aria')"
+            >
+              <span class="material-icons">send</span>
+            </button>
+          </div>
+        </div>
+        <p class="chat-input-hint">
+          <span class="material-icons">info</span>
+          {{ lang.t('chat.input.hint') }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

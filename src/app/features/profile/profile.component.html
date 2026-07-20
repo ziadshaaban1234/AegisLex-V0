@@ -1,0 +1,305 @@
+<div class="profile-page page-enter">
+
+  <!-- Profile Header -->
+  <div class="profile-hero">
+    <div class="profile-avatar">
+      <img *ngIf="currentUser()?.avatarUrl" [src]="currentUser()!.avatarUrl" [alt]="currentUser()!.firstName" width="96" height="96" />
+      <span *ngIf="!currentUser()?.avatarUrl">{{ userInitials }}</span>
+      <button class="profile-avatar__edit" [title]="langService.t('profile.change_photo')" [attr.aria-label]="langService.t('profile.change_photo')">
+        <span class="material-icons">camera_alt</span>
+      </button>
+    </div>
+    <div class="profile-hero__info">
+      <h1 class="profile-hero__name">{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</h1>
+      <p class="profile-hero__email">{{ currentUser()?.email }}</p>
+      <div class="profile-hero__badges">
+        <span class="role-badge">{{ langService.t(getRoleBadgeKey(currentUser()?.role || '')) }}</span>
+        <span *ngIf="currentUser()?.organizationName" class="org-badge">
+          <span class="material-icons">business</span>
+          {{ currentUser()!.organizationName }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="profile-stats">
+    <div *ngFor="let stat of stats" class="profile-stat">
+      <div class="profile-stat__icon" [style.background]="stat.color + '15'" [style.color]="stat.color">
+        <span class="material-icons">{{ stat.icon }}</span>
+      </div>
+      <div class="profile-stat__value">{{ stat.value }}</div>
+      <div class="profile-stat__label">{{ langService.t(stat.labelKey) }}</div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+
+    <!-- Profile Form -->
+    <div class="profile-card">
+      <h3 class="profile-card__title">{{ langService.t('profile.personal_info') }}</h3>
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+
+        <div class="form-grid">
+
+          <!-- First Name -->
+          <div class="form-group">
+            <label class="form-label" for="profile-first-name">{{ langService.t('register.first_name_label') }}</label>
+            <div class="form-input-wrapper"
+                 [class.form-input-wrapper--error]="firstNameErrors.length > 0"
+                 [class.form-input-wrapper--success]="isProfileFieldValid('firstName')">
+              <span class="material-icons form-input-icon">person</span>
+              <input type="text" id="profile-first-name" formControlName="firstName"
+                     class="form-input" [placeholder]="langService.t('profile.first_name_ph')" autocomplete="given-name"
+                     [attr.aria-invalid]="firstNameErrors.length > 0"
+                     aria-describedby="profile-first-err" aria-required="true" />
+              <span *ngIf="isProfileFieldValid('firstName')"
+                    class="material-icons form-input-trail-icon form-input-trail-icon--success">check_circle</span>
+            </div>
+            <div id="profile-first-err" class="form-errors" role="alert" *ngIf="firstNameErrors.length > 0">
+              <p *ngFor="let msg of firstNameErrors" class="form-error">
+                <span class="material-icons">error</span>{{ langService.t(msg) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group">
+            <label class="form-label" for="profile-last-name">{{ langService.t('register.last_name_label') }}</label>
+            <div class="form-input-wrapper"
+                 [class.form-input-wrapper--error]="lastNameErrors.length > 0"
+                 [class.form-input-wrapper--success]="isProfileFieldValid('lastName')">
+              <span class="material-icons form-input-icon">person</span>
+              <input type="text" id="profile-last-name" formControlName="lastName"
+                     class="form-input" [placeholder]="langService.t('profile.last_name_ph')" autocomplete="family-name"
+                     [attr.aria-invalid]="lastNameErrors.length > 0"
+                     aria-describedby="profile-last-err" aria-required="true" />
+              <span *ngIf="isProfileFieldValid('lastName')"
+                    class="material-icons form-input-trail-icon form-input-trail-icon--success">check_circle</span>
+            </div>
+            <div id="profile-last-err" class="form-errors" role="alert" *ngIf="lastNameErrors.length > 0">
+              <p *ngFor="let msg of lastNameErrors" class="form-error">
+                <span class="material-icons">error</span>{{ langService.t(msg) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group form-group--full">
+            <label class="form-label" for="profile-email">{{ langService.t('auth.form.email_label') }}</label>
+            <div class="form-input-wrapper"
+                 [class.form-input-wrapper--error]="emailErrors.length > 0"
+                 [class.form-input-wrapper--success]="isProfileFieldValid('email')">
+              <span class="material-icons form-input-icon">mail</span>
+              <input type="email" id="profile-email" formControlName="email"
+                     class="form-input" placeholder="you@lawfirm.com" autocomplete="email"
+                     [attr.aria-invalid]="emailErrors.length > 0"
+                     aria-describedby="profile-email-err" aria-required="true" />
+              <span *ngIf="isProfileFieldValid('email')"
+                    class="material-icons form-input-trail-icon form-input-trail-icon--success">check_circle</span>
+            </div>
+            <div id="profile-email-err" class="form-errors" role="alert" *ngIf="emailErrors.length > 0">
+              <p *ngFor="let msg of emailErrors" class="form-error">
+                <span class="material-icons">error</span>{{ langService.t(msg) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Organization (optional) -->
+          <div class="form-group form-group--full">
+            <label class="form-label" for="profile-org-name">
+              {{ langService.t('register.org_label') }} <span class="form-label--optional">{{ langService.t('register.org_optional') }}</span>
+            </label>
+            <div class="form-input-wrapper"
+                 [class.form-input-wrapper--error]="orgErrors.length > 0"
+                 [class.form-input-wrapper--success]="isProfileFieldValid('organizationName')">
+              <span class="material-icons form-input-icon">business</span>
+              <input type="text" id="profile-org-name" formControlName="organizationName"
+                     class="form-input" [placeholder]="langService.t('profile.org_ph')" />
+            </div>
+            <div class="form-errors" role="alert" *ngIf="orgErrors.length > 0">
+              <p *ngFor="let msg of orgErrors" class="form-error">
+                <span class="material-icons">error</span>{{ langService.t(msg) }}
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="saving()">
+            <span *ngIf="!saving()" class="material-icons">save</span>
+            <div *ngIf="saving()" class="btn-spinner-sm"></div>
+            {{ saving() ? langService.t('profile.saving') : langService.t('profile.save_changes') }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Password & Security Section -->
+    <div class="profile-card">
+      <div class="profile-card__header">
+        <h3 class="profile-card__title">{{ langService.t('profile.password_security') }}</h3>
+        <button class="btn-ghost" (click)="togglePasswordSection()">
+          <span class="material-icons">{{ showPasswordSection() ? 'expand_less' : 'expand_more' }}</span>
+          {{ showPasswordSection() ? langService.t('profile.hide') : langService.t('profile.change_password') }}
+        </button>
+      </div>
+
+      <div *ngIf="!showPasswordSection()" class="password-status">
+        <span class="material-icons">lock</span>
+        <div>
+          <strong>{{ langService.t('profile.password_protected') }}</strong>
+          <p>{{ langService.t('profile.password_protected_body') }}</p>
+        </div>
+      </div>
+
+      <form *ngIf="showPasswordSection()" [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+        <div class="form-grid">
+
+          <!-- Current Password -->
+          <div class="form-group form-group--full">
+            <label class="form-label" for="profile-current-password">{{ langService.t('profile.current_password_label') }}</label>
+            <div class="form-input-wrapper"
+                 [class.form-input-wrapper--error]="currentPasswordErrors.length > 0"
+                 [class.form-input-wrapper--success]="isPasswordFieldValid('currentPassword')">
+              <span class="material-icons form-input-icon">lock</span>
+              <input [type]="showCurrentPassword() ? 'text' : 'password'"
+                     id="profile-current-password" formControlName="currentPassword"
+                     class="form-input has-trail" [placeholder]="langService.t('profile.current_password_ph')"
+                     autocomplete="current-password"
+                     [attr.aria-invalid]="currentPasswordErrors.length > 0"
+                     aria-describedby="profile-curr-pw-err" aria-required="true" />
+              <button type="button" class="form-input-toggle" (click)="toggleCurrentPassword()"
+                      [attr.aria-label]="showCurrentPassword() ? langService.t('auth.form.hide_password') : langService.t('auth.form.show_password')">
+                <span class="material-icons">{{ showCurrentPassword() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <div id="profile-curr-pw-err" class="form-errors" role="alert" *ngIf="currentPasswordErrors.length > 0">
+              <p *ngFor="let msg of currentPasswordErrors" class="form-error">
+                <span class="material-icons">error</span>{{ langService.t(msg) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- New Password -->
+          <div class="form-group form-group--full">
+            <label class="form-label" for="profile-new-password">{{ langService.t('profile.new_password_label') }}</label>
+            <div class="form-input-wrapper"
+                 [class.form-input-wrapper--locked]="newPasswordFieldsLocked"
+                 [class.form-input-wrapper--error]="newPasswordErrors.length > 0"
+                 [class.form-input-wrapper--success]="isPasswordFieldValid('password')">
+              <span class="material-icons form-input-icon">lock</span>
+              <input [type]="showNewPassword() ? 'text' : 'password'"
+                     id="profile-new-password" formControlName="password"
+                     class="form-input has-trail" [placeholder]="langService.t('profile.new_password_ph')"
+                     autocomplete="new-password"
+                     aria-required="true"
+                     [attr.aria-invalid]="newPasswordErrors.length > 0"
+                     [attr.aria-disabled]="newPasswordFieldsLocked"
+                     aria-describedby="profile-new-pw-err"
+                     (focus)="newPasswordFocused.set(true)"
+                     (blur)="newPasswordFocused.set(false)" />
+              <button type="button" class="form-input-toggle" (click)="toggleNewPassword()"
+                      [disabled]="newPasswordFieldsLocked"
+                      [attr.aria-label]="showNewPassword() ? langService.t('auth.form.hide_password') : langService.t('auth.form.show_password')">
+                <span class="material-icons">{{ showNewPassword() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <p *ngIf="newPasswordFieldsLocked" class="form-lock-hint">
+              <span class="material-icons">lock</span>{{ langService.t('profile.lock_hint') }}
+            </p>
+
+            <!-- Password Strength — identical to Register -->
+            <app-password-strength *ngIf="!newPasswordFieldsLocked" [value]="newPasswordValue"></app-password-strength>
+
+            <!-- Password Requirements — identical to Register -->
+            <app-password-requirements
+              *ngIf="!newPasswordFieldsLocked"
+              [visible]="newPasswordFocused() || passwordForm.get('password')!.touched"
+              [value]="newPasswordValue"
+              [touched]="passwordForm.get('password')!.touched">
+            </app-password-requirements>
+
+            <div id="profile-new-pw-err" class="form-errors" role="alert" *ngIf="newPasswordErrors.length > 0">
+              <p *ngFor="let msg of newPasswordErrors" class="form-error">
+                <span class="material-icons">error</span>{{ langService.t(msg) }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Confirm New Password -->
+          <div class="form-group form-group--full">
+            <label class="form-label" for="profile-confirm-password">{{ langService.t('profile.confirm_password_label') }}</label>
+            <div class="form-input-wrapper"
+                 [class.form-input-wrapper--locked]="newPasswordFieldsLocked"
+                 [class.form-input-wrapper--error]="confirmPasswordErrors.length > 0"
+                 [class.form-input-wrapper--success]="confirmMatch">
+              <span class="material-icons form-input-icon">lock_outline</span>
+              <input [type]="showConfirmPassword() ? 'text' : 'password'"
+                     id="profile-confirm-password" formControlName="confirmPassword"
+                     class="form-input has-trail" [placeholder]="langService.t('profile.confirm_password_ph')"
+                     autocomplete="new-password"
+                     [attr.aria-invalid]="confirmPasswordErrors.length > 0"
+                     [attr.aria-disabled]="newPasswordFieldsLocked"
+                     aria-describedby="profile-confirm-pw-err" />
+              <button type="button" class="form-input-toggle" (click)="toggleConfirmPassword()"
+                      [disabled]="newPasswordFieldsLocked"
+                      [attr.aria-label]="showConfirmPassword() ? langService.t('auth.form.hide_password') : langService.t('auth.form.show_password')">
+                <span class="material-icons">{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <div *ngIf="confirmMatch" class="form-match-msg">
+              <span class="material-icons">check_circle</span>{{ langService.t('profile.passwords_match') }}
+            </div>
+            <div id="profile-confirm-pw-err" class="form-errors" role="alert" *ngIf="confirmPasswordErrors.length > 0">
+              <p *ngFor="let msg of confirmPasswordErrors" class="form-error">
+                <span class="material-icons">error</span>{{ langService.t(msg) }}
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="changingPassword()">
+            <span *ngIf="!changingPassword()" class="material-icons">lock_reset</span>
+            <div *ngIf="changingPassword()" class="btn-spinner-sm"></div>
+            {{ changingPassword() ? langService.t('profile.updating') : langService.t('profile.update_password') }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Account Info -->
+    <div class="profile-card">
+      <h3 class="profile-card__title">{{ langService.t('profile.account_info') }}</h3>
+      <div class="account-info">
+        <div class="account-info__row">
+          <span>{{ langService.t('profile.account_id') }}</span>
+          <code>{{ currentUser()?.id }}</code>
+        </div>
+        <div class="account-info__row">
+          <span>{{ langService.t('profile.role') }}</span>
+          <strong>{{ langService.t(getRoleBadgeKey(currentUser()?.role || '')) }}</strong>
+        </div>
+        <div class="account-info__row">
+          <span>{{ langService.t('profile.member_since') }}</span>
+          <strong>{{ currentUser()?.createdAt | date:'mediumDate' }}</strong>
+        </div>
+        <div class="account-info__row">
+          <span>{{ langService.t('profile.last_login') }}</span>
+          <strong>{{ currentUser()?.lastLoginAt | date:'medium' }}</strong>
+        </div>
+        <div class="account-info__row">
+          <span>{{ langService.t('profile.status') }}</span>
+          <span class="status-active">
+            <span class="status-dot-green"></span>
+            {{ langService.t('profile.status_active') }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

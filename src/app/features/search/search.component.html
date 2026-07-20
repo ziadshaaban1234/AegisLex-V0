@@ -1,0 +1,114 @@
+<div class="search-page page-enter">
+  <div class="search-header">
+    <h1 class="section-title">{{ langService.t('search.page_title') }}</h1>
+    <p class="section-subtitle">{{ langService.t('search.page_subtitle') }}</p>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-bar-wrapper">
+    <div class="search-bar">
+      <span class="material-icons search-bar__icon">search</span>
+      <input
+        type="text"
+        class="search-bar__input"
+        [placeholder]="langService.t('search.input_placeholder')"
+        [attr.aria-label]="langService.t('search.input_aria')"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+        (keydown)="onKeydown($event)"
+      />
+      <button class="search-bar__btn" (click)="onSearch()" [disabled]="loading()" [attr.aria-label]="loading() ? langService.t('search.btn_searching') : langService.t('search.btn_search')">
+        <span *ngIf="!loading()" class="material-icons">arrow_forward</span>
+        <div *ngIf="loading()" class="spinner-sm"></div>
+      </button>
+    </div>
+
+    <!-- Search Type Selector -->
+    <div class="search-types">
+      <button *ngFor="let t of searchTypes"
+        class="search-type-btn"
+        [class.search-type-btn--active]="searchType() === t.value"
+        (click)="searchType.set(t.value)">
+        <span class="material-icons">{{ t.icon }}</span>
+        {{ langService.t(t.labelKey) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Meta -->
+  <div *ngIf="hasSearched() && !loading()" class="search-meta">
+    <span>{{ langService.t('search.meta_results', [total()]) }} <strong>"{{ query() }}"</strong></span>
+    <span class="search-meta__time">{{ searchTime() }}ms</span>
+  </div>
+
+  <!-- Loading -->
+  <!-- Search results skeleton -->
+  <div *ngIf="loading()" class="srsk-list">
+    <div *ngFor="let i of [1,2,3,4,5]" class="srsk-result">
+      <div class="srsk-result__body">
+        <!-- Document type icon -->
+        <div class="skeleton" style="width:42px;height:42px;border-radius:10px;flex-shrink:0;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;">
+          <!-- Document title -->
+          <div class="skeleton" [style.width]="(40 + i*8) + '%'" style="height:17px;border-radius:5px;"></div>
+          <!-- Case / source ref -->
+          <div class="skeleton" style="width:38%;height:13px;border-radius:4px;"></div>
+          <!-- Highlighted text lines -->
+          <div class="skeleton" style="width:98%;height:13px;border-radius:4px;"></div>
+          <div class="skeleton" [style.width]="(65 + i*5) + '%'" style="height:13px;border-radius:4px;"></div>
+          <!-- Tag pills -->
+          <div style="display:flex;gap:6px;margin-top:4px;">
+            <div class="skeleton" style="width:58px;height:22px;border-radius:20px;"></div>
+            <div class="skeleton" style="width:72px;height:22px;border-radius:20px;"></div>
+            <div class="skeleton" style="width:50px;height:22px;border-radius:20px;"></div>
+          </div>
+        </div>
+        <!-- Relevance score badge -->
+        <div class="skeleton" style="width:54px;height:32px;border-radius:10px;flex-shrink:0;align-self:flex-start;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state (no search yet) -->
+  <div *ngIf="!hasSearched() && !loading()" class="search-welcome">
+    <app-scale-of-justice size="md" [muted]="true"></app-scale-of-justice>
+    <h3>{{ langService.t('search.welcome_title') }}</h3>
+    <p>{{ langService.t('search.welcome_desc') }}</p>
+    <div class="search-welcome__chips">
+      <button *ngFor="let s of suggestedSearches" class="search-chip" (click)="query.set(s); onSearch()">{{ s }}</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div *ngIf="!loading() && results().length > 0" class="search-results">
+    <div *ngFor="let result of results()" class="search-result-card">
+      <div class="search-result-card__type"
+        [style.color]="getResultColor(result.resultType)"
+        [style.background]="getResultColor(result.resultType) + '15'">
+        <span class="material-icons">{{ getResultIcon(result.resultType) }}</span>
+        {{ result.resultType | titlecase }}
+      </div>
+      <h3 class="search-result-card__title">{{ result.title }}</h3>
+      <p class="search-result-card__excerpt">{{ result.excerpt }}</p>
+      <div class="search-result-card__footer">
+        <div class="relevance-bar">
+          <span>{{ langService.t('search.relevance') }}</span>
+          <div class="relevance-bar__track">
+            <div class="relevance-bar__fill"
+              [style.width.%]="result.relevanceScore * 100"
+              [style.background]="getResultColor(result.resultType)"></div>
+          </div>
+          <span class="relevance-score">{{ (result.relevanceScore * 100).toFixed(0) }}%</span>
+        </div>
+        <span class="result-date">{{ formatDate(result.createdAt) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="hasSearched() && !loading() && results().length === 0" class="search-no-results">
+    <span class="material-icons">search_off</span>
+    <h3>{{ langService.t('search.no_results_title') }}</h3>
+    <p>{{ langService.t('search.no_results_desc') }}</p>
+  </div>
+</div>

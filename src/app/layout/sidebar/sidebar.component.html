@@ -1,0 +1,128 @@
+<aside class="sidebar" [class.sidebar--collapsed]="collapsed">
+
+  <!-- Logo -->
+  <div class="sidebar__brand">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-icon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar-shield-svg" style="width:22px;height:22px;">
+          <!-- Shield background -->
+          <path d="M32 4 L10 13 L10 32 C10 46 19.8 57.5 32 61 C44.2 57.5 54 46 54 32 L54 13 Z" fill="white" opacity="0.15"/>
+          <path d="M32 8 L13 16.5 L13 32 C13 44.8 21.4 55.2 32 58.4 C42.6 55.2 51 44.8 51 32 L51 16.5 Z" fill="none" stroke="white" stroke-width="1.8" opacity="0.65"/>
+          <!-- Top finial dot -->
+          <circle cx="32" cy="17" r="2" fill="#fbbf24" opacity="0.9"/>
+          <!-- Animated beam group -->
+          <g class="shield-scale-beam" style="transform-origin:32px 28px; transform-box:fill-box;">
+            <!-- Vertical rod -->
+            <line x1="32" y1="19" x2="32" y2="47" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+            <!-- Beam -->
+            <line x1="14" y1="28" x2="50" y2="28" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+            <!-- Pivot gem -->
+            <circle cx="32" cy="28" r="2.5" fill="#fbbf24"/>
+            <!-- Left chain + pan -->
+            <line x1="17" y1="28" x2="14" y2="37" stroke="white" stroke-width="1.2" stroke-dasharray="2 2" opacity="0.6"/>
+            <line x1="17" y1="28" x2="20" y2="37" stroke="white" stroke-width="1.2" stroke-dasharray="2 2" opacity="0.6"/>
+            <path d="M11 38 Q17 43 23 38" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+            <!-- Right chain + pan -->
+            <line x1="47" y1="28" x2="44" y2="37" stroke="white" stroke-width="1.2" stroke-dasharray="2 2" opacity="0.6"/>
+            <line x1="47" y1="28" x2="50" y2="37" stroke="white" stroke-width="1.2" stroke-dasharray="2 2" opacity="0.6"/>
+            <path d="M41 38 Q47 43 53 38" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+          </g>
+          <!-- Base -->
+          <rect x="28" y="47" width="8" height="2.5" rx="1.25" fill="white" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="sidebar__logo-text" *ngIf="!collapsed">
+        <span class="sidebar__logo-name">AegisLex</span>
+        <span class="sidebar__logo-tagline">{{ langService.t('sidebar.tagline') }}</span>
+      </div>
+    </div>
+    <button class="sidebar__toggle" (click)="onToggle()" [title]="collapsed ? langService.t('sidebar.expand') : langService.t('sidebar.collapse')" [attr.aria-label]="collapsed ? langService.t('sidebar.expand_aria') : langService.t('sidebar.collapse_aria')">
+      <span class="material-icons">{{ collapsed ? 'chevron_right' : 'chevron_left' }}</span>
+    </button>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar__nav">
+    <ul class="sidebar__nav-list">
+      <ng-container *ngFor="let item of navItems">
+        <li class="sidebar__nav-item">
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="sidebar__nav-link--active"
+            class="sidebar__nav-link"
+            [title]="collapsed ? langService.t(item.tk) : ''"
+            (click)="onNavigate()"
+          >
+            <span class="material-icons sidebar__nav-icon">{{ item.icon }}</span>
+            <span class="sidebar__nav-label" *ngIf="!collapsed">{{ langService.t(item.tk) }}</span>
+            <span *ngIf="item.badge && !collapsed" class="sidebar__nav-badge">{{ item.badge }}</span>
+          </a>
+        </li>
+        <li *ngIf="item.dividerAfter" class="sidebar__divider"></li>
+      </ng-container>
+    </ul>
+  </nav>
+
+  <!-- Saul Status -->
+  <div class="sidebar__saul-status" *ngIf="!collapsed">
+    <div class="sidebar__saul-indicator">
+      <div class="saul-avatar">
+        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="saul-icon-svg">
+          <ellipse cx="40" cy="30" rx="17" ry="19" fill="#f5c8a0"/>
+          <path d="M23 22 Q25 8 40 10 Q55 8 57 22 Q52 14 40 15 Q28 14 23 22Z" fill="#6b4226"/>
+          <ellipse cx="23" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+          <ellipse cx="57" cy="31" rx="3" ry="4" fill="#f0b98a"/>
+          <ellipse cx="33" cy="28" rx="4" ry="3.5" fill="white"/>
+          <ellipse cx="47" cy="28" rx="4" ry="3.5" fill="white"/>
+          <circle cx="34" cy="28.5" r="2.2" fill="#3d2c1e"/>
+          <circle cx="47.5" cy="28.5" r="2.2" fill="#3d2c1e"/>
+          <circle cx="35" cy="27.5" r="0.8" fill="white"/>
+          <circle cx="48.5" cy="27.5" r="0.8" fill="white"/>
+          <path d="M29 23.5 Q33 22 37 23" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M43 23 Q47 22 51 23.5" stroke="#5a3820" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M38 33 Q40 36 42 33" stroke="#d4956a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+          <path d="M32 39 Q40 44 48 39" stroke="#c97a50" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <rect x="35" y="47" width="10" height="8" rx="2" fill="#f0b98a"/>
+          <path d="M15 80 L20 55 Q28 50 35 55 L40 60 L45 55 Q52 50 60 55 L65 80Z" fill="#2c3e50"/>
+          <path d="M35 55 L40 60 L45 55 L43 80 L37 80Z" fill="#ecf0f1"/>
+          <path d="M38 56 L40 61 L42 56 L41 78 L40 80 L39 78Z" fill="#f0b429"/>
+          <path d="M38 56 L40 58 L42 56 L40 61Z" fill="#d4950a"/>
+          <path d="M35 55 L28 62 L32 58 L35 60Z" fill="#34495e"/>
+          <path d="M45 55 L52 62 L48 58 L45 60Z" fill="#34495e"/>
+        </svg>
+      </div>
+      <div class="saul-info">
+        <span class="saul-name">Saul</span>
+        <span class="saul-status">
+          <span class="status-dot status-dot-online"></span>
+          {{ langService.t('sidebar.ai_copilot') }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Profile -->
+  <div class="sidebar__user">
+    <a routerLink="/app/profile" class="sidebar__user-link" [title]="collapsed ? (currentUser()?.firstName || '') : ''" (click)="onNavigate()">
+      <div class="sidebar__user-avatar">
+        <img
+          *ngIf="currentUser()?.avatarUrl; else initials"
+          [src]="currentUser()!.avatarUrl"
+          [alt]="currentUser()!.firstName"
+          width="36"
+          height="36"
+        />
+        <ng-template #initials>
+          <span>{{ userInitials }}</span>
+        </ng-template>
+      </div>
+      <div class="sidebar__user-info" *ngIf="!collapsed">
+        <span class="sidebar__user-name">{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</span>
+        <span class="sidebar__user-role">{{ currentUser()?.role | titlecase }}</span>
+      </div>
+    </a>
+    <button *ngIf="!collapsed" class="sidebar__logout-btn" (click)="logout()" [title]="langService.t('sidebar.sign_out')" [attr.aria-label]="langService.t('sidebar.sign_out_aria')">
+      <span class="material-icons">logout</span>
+    </button>
+  </div>
+</aside>

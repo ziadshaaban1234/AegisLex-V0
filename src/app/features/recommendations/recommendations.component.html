@@ -1,0 +1,76 @@
+<div class="rec-page page-enter">
+  <div class="page-header">
+    <div>
+      <h1 class="section-title">{{ lang.t('rec.page.title') }}</h1>
+      <p class="section-subtitle">{{ lang.t('rec.page.subtitle') }}</p>
+    </div>
+    <a routerLink="/app/chat" class="btn-primary">
+      <span class="material-icons">smart_toy</span> {{ lang.t('rec.page.ask_saul') }}
+    </a>
+  </div>
+
+  <!-- Priority filter -->
+  <div class="priority-filter">
+    <button *ngFor="let p of priorities" class="priority-filter-btn"
+      [class.priority-filter-btn--active]="selectedPriority() === p"
+      (click)="selectedPriority.set(p)">
+      {{ getPriorityLabel(p) }}
+      <span *ngIf="p !== 'all'" class="priority-count"
+        [style.color]="getPriorityConfig(p).color"
+        [style.background]="getPriorityConfig(p).bg">
+        {{ countByPriority(p) }}
+      </span>
+    </button>
+  </div>
+
+  <!-- Recommendations skeleton -->
+  <div *ngIf="loading()" class="recsk-list">
+    <div *ngFor="let i of [1,2,3,4,5]" class="recsk-card">
+      <div class="recsk-card__header">
+        <!-- Priority bar -->
+        <div class="skeleton" style="width:4px;height:70px;border-radius:4px;flex-shrink:0;"></div>
+        <!-- Icon -->
+        <div class="skeleton" style="width:40px;height:40px;border-radius:10px;flex-shrink:0;"></div>
+        <!-- Text -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="skeleton" style="height:13px;border-radius:4px;" [style.width]="(40 + i*8) + '%'"></div>
+            <div class="skeleton" style="width:64px;height:20px;border-radius:20px;margin-left:auto;flex-shrink:0;"></div>
+          </div>
+          <div class="skeleton skeleton-text--title" style="width:72%;"></div>
+          <div class="skeleton" style="height:13px;border-radius:4px;" [style.width]="(55 + i*5) + '%'"></div>
+          <div class="skeleton skeleton-text--sm" style="width:45%;"></div>
+        </div>
+      </div>
+      <div class="recsk-card__footer">
+        <div class="skeleton" style="width:84px;height:32px;border-radius:9px;"></div>
+        <div class="skeleton" style="width:100px;height:32px;border-radius:9px;"></div>
+        <div class="skeleton" style="width:32px;height:32px;border-radius:9px;margin-left:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading()" class="rec-list">
+    <div *ngFor="let rec of filtered" class="rec-card" [style.border-left-color]="getPriorityConfig(rec.priority).color">
+      <div class="rec-card__header">
+        <span class="priority-badge" [style.color]="getPriorityConfig(rec.priority).color" [style.background]="getPriorityConfig(rec.priority).bg">
+          <span class="material-icons">flag</span> {{ getPriorityLabel(rec.priority) }}
+        </span>
+        <span class="category-badge">{{ rec.category }}</span>
+      </div>
+      <h3 class="rec-card__title">{{ rec.title }}</h3>
+      <p class="rec-card__desc">{{ rec.description }}</p>
+      <div class="rec-card__actions-list">
+        <div *ngFor="let action of rec.actionItems" class="rec-action-item">
+          <span class="material-icons">check_box_outline_blank</span>
+          {{ action }}
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtered.length === 0" class="rec-empty">
+      <span class="material-icons">lightbulb</span>
+      <p>{{ lang.t('rec.page.empty') }}</p>
+    </div>
+  </div>
+</div>

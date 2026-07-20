@@ -1,0 +1,31 @@
+<div class="main-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
+  <!-- Sidebar -->
+  <app-sidebar
+    [collapsed]="sidebarCollapsed()"
+    (toggleCollapse)="toggleSidebar()"
+    (navigate)="closeSidebarOnMobile()"
+    class="main-layout__sidebar"
+  />
+
+  <!-- Mobile overlay backdrop -->
+  <div
+    class="main-layout__overlay"
+    *ngIf="!sidebarCollapsed()"
+    (click)="closeSidebarOnMobile()"
+  ></div>
+
+  <!-- Main content area -->
+  <div class="main-layout__content">
+    <!-- Navbar -->
+    <app-navbar
+      [sidebarCollapsed]="sidebarCollapsed()"
+      (toggleSidebar)="toggleSidebar()"
+      class="main-layout__navbar"
+    />
+
+    <!-- Page content -->
+    <main class="main-layout__page">
+      <router-outlet />
+    </main>
+  </div>
+</div>

@@ -1,0 +1,53 @@
+.settings-page { max-width: 1000px; }
+.settings-header { margin-bottom: 28px; }
+.settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; @media (max-width: 768px) { grid-template-columns: 1fr; } }
+.settings-nav { background: var(--color-bg-surface); border: 1px solid var(--color-border-primary); border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 2px; position: sticky; top: 24px; @media (max-width: 768px) { flex-direction: row; flex-wrap: wrap; position: static; }
+  &__item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: none; background: transparent; color: var(--color-text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-sans); text-align: start; width: 100%; .material-icons { font-size: 18px; } &:hover { background: var(--color-bg-primary); color: var(--color-text-primary); } &--active { background: var(--color-aegis-light); color: var(--color-aegis-primary); .material-icons { color: var(--color-aegis-primary); } } }
+}
+.settings-content { background: var(--color-bg-surface); border: 1px solid var(--color-border-primary); border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 24px; }
+.settings-section { display: flex; flex-direction: column; gap: 20px; &__title { font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin: 0 0 4px; font-family: var(--font-sans); padding-bottom: 14px; border-bottom: 1px solid var(--color-border-primary); } }
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; &__info { flex: 1; min-width: 0; strong { font-size: 14px; font-weight: 600; color: var(--color-text-primary); display: block; margin-bottom: 3px; } p { font-size: 13px; color: var(--color-text-muted); margin: 0; } } }
+.setting-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; &__info { @extend .setting-row__info; } }
+.theme-selector { display: flex; gap: 8px; }
+.theme-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--color-border-primary); background: var(--color-bg-primary); color: var(--color-text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-sans); .material-icons { font-size: 16px; } &:hover { border-color: rgba(78,78,235,0.3); color: var(--color-aegis-primary); } &--active { background: var(--color-aegis-primary); border-color: transparent; color: white; &:hover { color: white; } } }
+.setting-select { padding: 9px 12px; background: var(--color-bg-primary); border: 1px solid var(--color-border-primary); border-radius: 10px; font-size: 13px; color: var(--color-text-primary); font-family: var(--font-sans); outline: none; cursor: pointer; min-width: 160px; &:focus { border-color: var(--color-aegis-primary); } }
+.toggle-switch { position: relative; display: inline-flex; cursor: pointer; input { opacity: 0; width: 0; height: 0; position: absolute; } &__slider { width: 44px; height: 24px; background: var(--color-border-secondary); border-radius: 100px; transition: background var(--transition-fast); position: relative; &::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform var(--transition-fast); box-shadow: 0 1px 4px rgba(0,0,0,0.2); } } input:checked + &__slider { background: var(--color-aegis-primary); &::after { transform: translateX(20px); } } }
+
+// RTL: the knob's resting position already mirrors via inset-inline-start above;
+// the checked-state slide must explicitly reverse direction here since `transform`
+// is not affected by logical properties or the `dir` attribute on its own.
+[dir="rtl"] .toggle-switch input:checked + .toggle-switch__slider::after {
+  transform: translateX(-20px);
+}
+.security-info { display: flex; flex-direction: column; gap: 14px; }
+.security-info__item { display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--color-bg-primary); border: 1px solid var(--color-border-primary); border-radius: 12px; .material-icons { font-size: 24px; color: var(--color-aegis-primary); flex-shrink: 0; } strong { font-size: 14px; font-weight: 600; color: var(--color-text-primary); display: block; margin-bottom: 3px; } p { font-size: 13px; color: var(--color-text-muted); margin: 0; } div { flex: 1; } }
+.api-info { display: flex; flex-direction: column; gap: 16px; }
+.api-endpoint { label { font-size: 13px; font-weight: 600; color: var(--color-text-secondary); display: block; margin-bottom: 8px; } &__value { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--color-bg-primary); border: 1px solid var(--color-border-primary); border-radius: 10px; code { font-family: var(--font-mono); font-size: 13px; color: var(--color-aegis-primary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } } }
+.copy-btn { background: none; border: none; cursor: pointer; color: var(--color-text-muted); display: flex; align-items: center; padding: 4px; border-radius: 6px; transition: all var(--transition-fast); flex-shrink: 0; .material-icons { font-size: 16px; } &:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); } }
+.settings-actions { padding-top: 16px; border-top: 1px solid var(--color-border-primary); display: flex; justify-content: flex-end; }
+.btn-sm { padding: 7px 14px !important; font-size: 12px !important; }
+
+// ── Ultra-small responsive ─────────────────────────────────────────────────
+
+@media (max-width: 480px) {
+  .settings-content { padding: 16px; }
+  .settings-nav { flex-direction: row; flex-wrap: wrap; &__item { width: auto; } }
+}
+
+@media (max-width: 360px) {
+  .settings-content { padding: 12px; gap: 16px; }
+  .setting-row, .setting-toggle-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .theme-selector { flex-wrap: wrap; gap: 6px; }
+  .setting-select { min-width: 100%; }
+}
+
+@media (max-width: 320px) {
+  .settings-content { padding: 10px; }
+  .api-endpoint__value { padding: 8px 10px; code { font-size: 11px; } }
+}
+
+@media (max-width: 280px) {
+  .settings-content { padding: 8px; }
+  .settings-nav__item { padding: 7px 8px; font-size: 12px; }
+  .theme-btn { padding: 6px 10px; font-size: 11px; }
+}

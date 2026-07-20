@@ -1,0 +1,151 @@
+<div class="settings-page page-enter">
+  <div class="settings-header">
+    <h1 class="section-title">{{ langService.t('settings.title') }}</h1>
+    <p class="section-subtitle">{{ langService.t('settings.subtitle') }}</p>
+  </div>
+
+  <div class="settings-layout">
+    <!-- Sidebar Nav -->
+    <nav class="settings-nav">
+      <button *ngFor="let s of sections"
+        class="settings-nav__item"
+        [class.settings-nav__item--active]="activeSection() === s.id"
+        (click)="activeSection.set(s.id)">
+        <span class="material-icons">{{ s.icon }}</span>
+        {{ langService.t(s.labelKey) }}
+      </button>
+    </nav>
+
+    <!-- Content -->
+    <div class="settings-content">
+
+      <!-- Appearance -->
+      <div *ngIf="activeSection() === 'appearance'" class="settings-section">
+        <h3 class="settings-section__title">{{ langService.t('settings.appearance') }}</h3>
+
+        <div class="setting-row">
+          <div class="setting-row__info">
+            <strong>{{ langService.t('settings.theme') }}</strong>
+            <p>{{ langService.t('settings.theme_desc') }}</p>
+          </div>
+          <div class="theme-selector">
+            <button class="theme-btn" [class.theme-btn--active]="currentTheme === 'light'" (click)="setTheme('light')">
+              <span class="material-icons">light_mode</span> {{ langService.t('settings.theme.light') }}
+            </button>
+            <button class="theme-btn" [class.theme-btn--active]="currentTheme === 'dark'" (click)="setTheme('dark')">
+              <span class="material-icons">dark_mode</span> {{ langService.t('settings.theme.dark') }}
+            </button>
+            <button class="theme-btn" [class.theme-btn--active]="currentTheme === 'system'" (click)="setTheme('system')">
+              <span class="material-icons">computer</span> {{ langService.t('settings.theme.system') }}
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row__info">
+            <strong>{{ langService.t('settings.language') }}</strong>
+            <p>{{ langService.t('settings.language_desc') }}</p>
+          </div>
+          <select class="setting-select"
+            [value]="getStringPref('language')"
+            (change)="setStringPref('language', $any($event.target).value)">
+            <option value="en">{{ langService.t('settings.lang.english') }}</option>
+            <option value="ar">{{ langService.t('settings.lang.arabic') }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div *ngIf="activeSection() === 'notifications'" class="settings-section">
+        <h3 class="settings-section__title">{{ langService.t('settings.nav.notifications') }}</h3>
+        <div class="setting-toggle-row" *ngFor="let opt of notifOptions">
+          <div class="setting-row__info">
+            <strong>{{ langService.t(opt.labelKey) }}</strong>
+            <p>{{ langService.t(opt.descKey) }}</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox"
+              [checked]="getBoolPref(opt.key)"
+              (change)="setBoolPref(opt.key, $any($event.target).checked)" />
+            <span class="toggle-switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- AI Settings -->
+      <div *ngIf="activeSection() === 'ai'" class="settings-section">
+        <h3 class="settings-section__title">{{ langService.t('settings.nav.ai') }}</h3>
+        <div class="setting-row">
+          <div class="setting-row__info">
+            <strong>{{ langService.t('settings.ai.model_label') }}</strong>
+            <p>{{ langService.t('settings.ai.model_desc') }}</p>
+          </div>
+          <select class="setting-select"
+            [value]="getStringPref('aiModel')"
+            (change)="setStringPref('aiModel', $any($event.target).value)">
+            <option value="gpt-4o">{{ langService.t('settings.ai.model_recommended') }}</option>
+            <option value="gpt-4o-mini">{{ langService.t('settings.ai.model_faster') }}</option>
+          </select>
+        </div>
+        <div class="setting-toggle-row" *ngFor="let opt of aiOptions">
+          <div class="setting-row__info">
+            <strong>{{ langService.t(opt.labelKey) }}</strong>
+            <p>{{ langService.t(opt.descKey) }}</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox"
+              [checked]="getBoolPref(opt.key)"
+              (change)="setBoolPref(opt.key, $any($event.target).checked)" />
+            <span class="toggle-switch__slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div *ngIf="activeSection() === 'security'" class="settings-section">
+        <h3 class="settings-section__title">{{ langService.t('settings.security') }}</h3>
+        <div class="security-info">
+          <div class="security-info__item">
+            <span class="material-icons">verified_user</span>
+            <div>
+              <strong>{{ langService.t('settings.security.protected_title') }}</strong>
+              <p>{{ langService.t('settings.security.protected_body') }}</p>
+            </div>
+          </div>
+          <div class="security-info__item">
+            <span class="material-icons">lock</span>
+            <div>
+              <strong>{{ langService.t('profile.change_password') }}</strong>
+              <p>{{ langService.t('settings.security.change_password_desc') }}</p>
+            </div>
+            <button class="btn-secondary btn-sm">{{ langService.t('settings.security.change') }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- API -->
+      <div *ngIf="activeSection() === 'api'" class="settings-section">
+        <h3 class="settings-section__title">{{ langService.t('settings.nav.api') }}</h3>
+        <div class="api-info">
+          <div class="api-endpoint">
+            <label>{{ langService.t('settings.api.base_url_label') }}</label>
+            <div class="api-endpoint__value">
+              <code>https://api.aegislex.com/v1</code>
+              <button class="copy-btn" (click)="toastService.success(langService.t('settings.api.copied'))" [attr.aria-label]="langService.t('settings.api.copy')">
+                <span class="material-icons">content_copy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="settings-actions">
+        <button class="btn-primary" (click)="saveSettings()" [disabled]="saving()">
+          <span class="material-icons" *ngIf="!saving()">save</span>
+          {{ saving() ? langService.t('settings.saving') : langService.t('settings.save_settings') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

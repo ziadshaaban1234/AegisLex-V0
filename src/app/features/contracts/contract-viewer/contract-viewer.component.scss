@@ -1,0 +1,608 @@
+.contract-viewer {
+  height: calc(100vh - var(--navbar-height) - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.viewer-loading {
+  padding: 0;
+  animation: fadeIn 0.3s ease both;
+}
+
+// Toolbar
+.viewer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 14px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+
+  &__doc-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__doc-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(239,68,68,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    .material-icons { font-size: 20px; color: #ef4444; }
+  }
+
+  &__doc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__doc-meta {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+  .material-icons { font-size: 18px; }
+  &:hover { color: var(--color-aegis-primary); }
+}
+
+.zoom-controls, .page-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 8px;
+}
+
+.zoom-btn, .page-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+  .material-icons { font-size: 16px; }
+  &:hover:not(:disabled) { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+.zoom-level {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 40px;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  &:hover { color: var(--color-aegis-primary); }
+}
+
+.page-info {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.viewer-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  .material-icons { font-size: 16px; }
+  &:hover { background: var(--color-bg-tertiary); color: var(--color-text-primary); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &--secondary { padding: 7px; }
+  &--primary { background: var(--color-aegis-primary); border-color: transparent; color: white; &:hover { background: var(--color-aegis-hover); color: white; } }
+}
+
+// Main Layout
+.viewer-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 14px;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+
+  @media (max-width: 1024px) { grid-template-columns: 1fr; }
+}
+
+// Document Panel
+.doc-panel {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 14px;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+
+  &__content {
+    transition: transform 0.2s ease;
+    transform-origin: top center;
+    width: 100%;
+  }
+}
+
+.doc-paper {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: hidden;
+
+  &__header {
+    padding: 12px 40px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  &__watermark {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  &__content {
+    padding: 48px 56px;
+    flex: 1;
+
+    @media (max-width: 640px) { padding: 24px; }
+  }
+
+  &__footer {
+    padding: 12px 40px;
+    background: #f8f9fa;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #94a3b8;
+    font-family: 'DM Sans', sans-serif;
+  }
+}
+
+.doc-text {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #1e293b;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+// AI Panel
+.ai-panel {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &__risk-banner {
+    padding: 12px 14px;
+    flex-shrink: 0;
+
+    &.risk-critical { background: rgba(220,38,38,0.08); border-bottom: 1px solid rgba(220,38,38,0.15); }
+    &.risk-medium   { background: rgba(202,138,4,0.08); border-bottom: 1px solid rgba(202,138,4,0.15); }
+    &.risk-low      { background: rgba(22,163,74,0.08); border-bottom: 1px solid rgba(22,163,74,0.15); }
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 2px;
+    padding: 8px 8px 0;
+    flex-shrink: 0;
+    overflow-x: auto;
+    &::-webkit-scrollbar { height: 0; }
+  }
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: 8px 8px 0 0;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+    font-family: var(--font-sans);
+    .material-icons { font-size: 15px; }
+    &:hover { background: var(--color-bg-primary); color: var(--color-text-primary); }
+    &--active { background: var(--color-bg-primary); color: var(--color-aegis-primary); border-bottom: 2px solid var(--color-aegis-primary); }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    background: var(--color-bg-primary);
+  }
+}
+
+.risk-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  > .material-icons { font-size: 20px; flex-shrink: 0; }
+  strong { font-size: 13px; font-weight: 700; color: var(--color-text-primary); display: block; margin-bottom: 2px; }
+  p { font-size: 11px; color: var(--color-text-muted); margin: 0; }
+}
+
+// Panel: Text
+.panel-text {
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-bottom: 12px;
+    .material-icons { font-size: 15px; }
+    strong { color: var(--color-text-primary); }
+  }
+
+  &__content {
+    font-family: var(--font-legal);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-primary);
+    border-radius: 8px;
+    padding: 14px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+// Panel: Analysis
+.panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  gap: 12px;
+
+  &__spinner {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4e4eeb, #8093fb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulseGlow 1.5s ease-in-out infinite;
+    .material-icons { font-size: 24px; color: white; }
+  }
+  p { font-size: 13px; color: var(--color-text-muted); margin: 0; }
+}
+
+.analysis-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &__text {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0;
+    font-family: var(--font-legal);
+    font-style: italic;
+    padding: 12px;
+    background: var(--color-bg-surface);
+    border-radius: 8px;
+    border-left: 3px solid var(--color-aegis-primary);
+  }
+}
+
+.saul-badge-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(78,78,235,0.1);
+  border: 1px solid rgba(78,78,235,0.2);
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-aegis-primary);
+  .material-icons { font-size: 13px; }
+}
+
+.analysis-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.analysis-stat {
+  padding: 10px;
+  background: var(--color-bg-surface);
+  border-radius: 8px;
+  text-align: center;
+  span { font-size: 20px; font-weight: 700; color: var(--color-text-primary); display: block; font-family: var(--font-display); }
+  label { font-size: 11px; color: var(--color-text-muted); }
+}
+
+// Panel: Risks
+.panel-risks { display: flex; flex-direction: column; gap: 8px; }
+
+.risk-item-sm {
+  padding: 12px 14px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-left: 3px solid;
+  border-radius: 10px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+  }
+
+  &__desc {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+    margin: 0;
+  }
+}
+
+.severity-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.severity-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.risk-category {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+// Panel: Entities
+.panel-entities { display: flex; flex-direction: column; gap: 6px; }
+
+.entity-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 8px;
+
+  &__type-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    strong { font-size: 13px; font-weight: 600; color: var(--color-text-primary); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    span { font-size: 11px; color: var(--color-text-muted); }
+  }
+
+  &__role {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-aegis-primary);
+    background: var(--color-aegis-light);
+    padding: 2px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+.panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  gap: 10px;
+  text-align: center;
+  .material-icons { font-size: 32px; color: var(--color-text-muted); }
+  p { font-size: 13px; color: var(--color-text-muted); margin: 0; }
+}
+
+// Responsive fixes
+@media (max-width: 1024px) {
+  .viewer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .viewer-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+
+    // Verified bug fix: these rules previously targeted &__nav and
+    // &__actions, but the real markup uses &__doc-info for the
+    // flexible name/icon block. &__actions already has flex-wrap
+    // via its own base rule, so only &__doc-info needed restating here.
+    &__doc-info { flex: 1; min-width: 0; overflow: hidden; }
+  }
+}
+
+@media (max-width: 768px) {
+  .viewer-toolbar {
+    // Verified bug fix: real class is &__doc-name (not &__file-name).
+    // Caps the filename so it ellipsizes instead of pushing the action
+    // buttons off-row when combined with their growing label text below.
+    &__doc-name { max-width: 160px; }
+  }
+
+  // Verified bug fix: real class is .viewer-action-btn (not a BEM
+  // &__action-btn nested under .viewer-toolbar). Hides the text label
+  // on Analyze / Full Analysis, keeping only the icon, so the toolbar
+  // doesn't need to wrap onto extra rows on narrow screens.
+  .viewer-action-btn span:not(.material-icons) { display: none; }
+
+  // Verified bug fix: real class is .ai-panel__tabs (not .panel-header__tabs).
+  // .ai-panel__tabs already has overflow-x: auto from its base rule;
+  // white-space: nowrap on the tab buttons themselves (.ai-panel__tab)
+  // is already set, so no further change needed there — this rule was
+  // simply removed as it targeted a non-existent class with no effect.
+}
+
+@media (max-width: 640px) {
+  .analysis-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .clause-item {
+    padding: 12px 14px;
+  }
+
+  .risk-item {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .analysis-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+}
+
+// ── Ultra-small responsive ─────────────────────────────────────────────────
+
+@media (max-width: 360px) {
+  .viewer-toolbar {
+    padding: 8px 10px;
+    gap: 6px;
+
+    &__doc-name { max-width: 100px; font-size: 12px; }
+  }
+
+  .analysis-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 320px) {
+  .viewer-toolbar {
+    padding: 6px 8px;
+    gap: 4px;
+
+    &__doc-name { max-width: 80px; font-size: 11px; }
+  }
+
+  .doc-panel {
+    padding: 10px;
+  }
+
+  .doc-paper__content {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 280px) {
+  .viewer-toolbar {
+    padding: 5px 6px;
+
+    &__doc-name { max-width: 60px; font-size: 10px; }
+  }
+
+  .doc-panel { padding: 6px; }
+
+  .doc-paper__content {
+    padding: 10px !important;
+  }
+
+  .analysis-stats {
+    grid-template-columns: 1fr;
+  }
+}

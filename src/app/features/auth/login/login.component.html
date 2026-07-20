@@ -1,0 +1,212 @@
+<div class="auth-page" [class.auth-light]="!themeService.isDark()">
+
+  <!-- Theme Toggle -->
+  <button class="auth-theme-toggle"
+          (click)="themeService.toggleTheme()"
+          [title]="themeService.isDark() ? langService.t('auth.theme.switch_to_light') : langService.t('auth.theme.switch_to_dark')"
+          [attr.aria-label]="themeService.isDark() ? langService.t('auth.theme.switch_to_light') : langService.t('auth.theme.switch_to_dark')">
+    <span class="material-icons">{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</span>
+  </button>
+
+  <!-- Language Switcher -->
+  <button class="lang-switcher auth-lang-switcher"
+          (click)="langService.setLanguage(langService.currentLang() === 'en' ? 'ar' : 'en')"
+          [title]="langService.currentLang() === 'en' ? langService.t('navbar.switch_to_arabic') : langService.t('navbar.switch_to_english')"
+          [attr.aria-label]="langService.currentLang() === 'en' ? langService.t('navbar.switch_to_arabic') : langService.t('navbar.switch_to_english')">
+    <img class="lang-switcher__flag" alt="" [src]="langService.currentLang() === 'en' ? '/assets/flags/united-kingdom.svg' : '/assets/flags/egypt.svg'">
+    <span class="lang-switcher__label">{{ langService.currentLang() === 'en' ? 'EN' : 'AR' }}</span>
+  </button>
+
+  <!-- Background orbs -->
+  <div class="auth-page__bg">
+    <div class="orb orb--1"></div>
+    <div class="orb orb--2"></div>
+  </div>
+
+  <!-- Brand Panel -->
+  <div class="auth-page__brand">
+    <div class="auth-brand">
+      <div class="auth-brand__logo">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="auth-shield-svg">
+          <path d="M32 4 L10 13 L10 32 C10 46 19.8 57.5 32 61 C44.2 57.5 54 46 54 32 L54 13 Z"
+                fill="white" opacity="0.15"/>
+          <path d="M32 8 L13 16.5 L13 32 C13 44.8 21.4 55.2 32 58.4 C42.6 55.2 51 44.8 51 32 L51 16.5 Z"
+                fill="none" stroke="white" stroke-width="1.8" opacity="0.65"/>
+          <circle cx="32" cy="17" r="2" fill="#fbbf24" opacity="0.9"/>
+          <g class="shield-scale-beam" style="transform-origin:32px 28px;transform-box:fill-box;">
+            <line x1="32" y1="19" x2="32" y2="47" stroke="white" stroke-width="1.8"
+                  stroke-linecap="round" opacity="0.7"/>
+            <line x1="14" y1="28" x2="50" y2="28" stroke="white" stroke-width="2"
+                  stroke-linecap="round" opacity="0.85"/>
+            <circle cx="32" cy="28" r="2.5" fill="#fbbf24"/>
+            <line x1="17" y1="28" x2="14" y2="37" stroke="white" stroke-width="1.2"
+                  stroke-dasharray="2 2" opacity="0.6"/>
+            <line x1="17" y1="28" x2="20" y2="37" stroke="white" stroke-width="1.2"
+                  stroke-dasharray="2 2" opacity="0.6"/>
+            <path d="M11 38 Q17 43 23 38" fill="none" stroke="white" stroke-width="1.8"
+                  stroke-linecap="round" opacity="0.85"/>
+            <line x1="47" y1="28" x2="44" y2="37" stroke="white" stroke-width="1.2"
+                  stroke-dasharray="2 2" opacity="0.6"/>
+            <line x1="47" y1="28" x2="50" y2="37" stroke="white" stroke-width="1.2"
+                  stroke-dasharray="2 2" opacity="0.6"/>
+            <path d="M41 38 Q47 43 53 38" fill="none" stroke="white" stroke-width="1.8"
+                  stroke-linecap="round" opacity="0.85"/>
+          </g>
+          <rect x="28.5" y="47" width="7" height="2.5" rx="1.25" fill="white" opacity="0.5"/>
+        </svg>
+      </div>
+      <h1 class="auth-brand__name">AegisLex</h1>
+      <p class="auth-brand__tagline">{{ langService.t('auth.brand.tagline') }}</p>
+      <div class="auth-brand__features">
+        <div class="auth-brand__feature"><span class="material-icons">psychology</span><span>{{ langService.t('auth.brand.feature.research') }}</span></div>
+        <div class="auth-brand__feature"><span class="material-icons">analytics</span><span>{{ langService.t('auth.brand.feature.analysis') }}</span></div>
+        <div class="auth-brand__feature"><span class="material-icons">gpp_maybe</span><span>{{ langService.t('auth.brand.feature.risk') }}</span></div>
+        <div class="auth-brand__feature"><span class="material-icons">timeline</span><span>{{ langService.t('auth.brand.feature.timeline') }}</span></div>
+        <div class="auth-brand__feature"><span class="material-icons">hub</span><span>{{ langService.t('auth.brand.feature.graph') }}</span></div>
+        <div class="auth-brand__feature"><span class="material-icons">lightbulb</span><span>{{ langService.t('auth.brand.feature.recommend') }}</span></div>
+        <div class="auth-brand__feature"><span class="material-icons">lock</span><span>{{ langService.t('auth.brand.feature.security') }}</span></div>
+        <div class="auth-brand__feature"><span class="material-icons">smart_toy</span><span>{{ langService.t('auth.brand.feature.saul') }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Panel -->
+  <div class="auth-page__form-panel">
+    <div class="auth-form-container">
+
+      <div class="auth-form-header">
+        <h2 class="auth-form-header__title">{{ langService.t('login.welcome_back') }}</h2>
+        <p class="auth-form-header__subtitle">{{ langService.t('login.subtitle') }}</p>
+      </div>
+
+      <!-- Session Expiry Notice -->
+      <div *ngIf="sessionMsg()" class="auth-session-msg">
+        <span class="material-icons">info</span>{{ langService.t(sessionMsg()) }}
+      </div>
+
+      <!-- Demo Banner -->
+      <div class="demo-banner">
+        <span class="material-icons">play_circle</span>
+        <div>
+          <strong>{{ langService.t('login.demo_mode.title') }}</strong>
+          <p>{{ langService.t('login.demo_mode.body') }}</p>
+        </div>
+      </div>
+
+      <!-- Server Error -->
+      <div *ngIf="serverError()" class="auth-error"
+           [class.auth-error--locked]="errorType() === 'locked'"
+           [class.auth-error--disabled]="errorType() === 'disabled'">
+        <span class="material-icons">
+          {{ errorType() === 'locked' ? 'lock' : errorType() === 'disabled' ? 'block' : 'error_outline' }}
+        </span>
+        <div>
+          <strong *ngIf="errorType() === 'locked'">{{ langService.t('login.account_locked_title') }}</strong>
+          <strong *ngIf="errorType() === 'disabled'">{{ langService.t('login.account_disabled_title') }}</strong>
+          {{ langService.t(serverError()) }}
+        </div>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="login-email">{{ langService.t('auth.form.email_label') }}</label>
+          <div class="form-input-wrapper"
+               [class.form-input-wrapper--error]="emailErrors.length > 0"
+               [class.form-input-wrapper--success]="loginForm.get('email')!.valid && (loginForm.get('email')!.touched || loginForm.get('email')!.dirty)">
+            <span class="material-icons form-input-icon">mail</span>
+            <input id="login-email" type="email" formControlName="email"
+                   [attr.aria-invalid]="emailErrors.length > 0"
+                   aria-describedby="login-email-err" aria-required="true"
+                   class="form-input" placeholder="demo@aegislex.com" autocomplete="email"/>
+            <span *ngIf="loginForm.get('email')!.valid && (loginForm.get('email')!.touched || loginForm.get('email')!.dirty)"
+                  class="material-icons form-trail-icon form-trail-icon--success">check_circle</span>
+          </div>
+          <div id="login-email-err" class="form-errors" *ngIf="emailErrors.length > 0" role="alert">
+            <p *ngFor="let msg of emailErrors" class="form-error">
+              <span class="material-icons">error</span>{{ langService.t(msg) }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="login-password">{{ langService.t('auth.form.password_label') }}</label>
+          <div class="form-input-wrapper"
+               [class.form-input-wrapper--error]="passwordErrors.length > 0">
+            <span class="material-icons form-input-icon">lock</span>
+            <input id="login-password"
+                   [attr.aria-invalid]="passwordErrors.length > 0"
+                   aria-describedby="login-pw-err" aria-required="true"
+                   
+                   [type]="showPassword() ? 'text' : 'password'"
+                   formControlName="password"
+                   class="form-input has-trail"
+                   [placeholder]="langService.t('login.password_placeholder')"
+                   autocomplete="current-password"/>
+            <button type="button" class="form-input-toggle" (click)="togglePassword()" [attr.aria-label]="showPassword() ? langService.t('auth.form.hide_password') : langService.t('auth.form.show_password')">
+              <span class="material-icons">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <div id="login-pw-err" class="form-errors" *ngIf="passwordErrors.length > 0" role="alert">
+            <p *ngFor="let msg of passwordErrors" class="form-error">
+              <span class="material-icons">error</span>{{ langService.t(msg) }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Remember + Forgot -->
+        <div class="form-row">
+          <label class="form-checkbox">
+            <input type="checkbox" formControlName="rememberMe"/>
+            <span>{{ langService.t('auth.form.remember_me') }}</span>
+          </label>
+          <a routerLink="/auth/forgot-password" class="form-link">{{ langService.t('auth.form.forgot_password') }}</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit"
+                class="auth-submit-btn"
+                [class.auth-submit-btn--loading]="isLoading()"
+                [disabled]="isLoading() || isGoogleLoading() || loginDisabled">
+          <div *ngIf="isLoading()" class="btn-spinner"></div>
+          <span *ngIf="!isLoading()" class="material-icons">login</span>
+          {{ isLoading() ? langService.t('login.signing_in') : langService.t('login.sign_in') }}
+        </button>
+
+        <div class="auth-divider"><span>{{ langService.t('auth.form.or') }}</span></div>
+
+        <!-- Google Sign-In -->
+        <button type="button"
+                class="auth-google-btn"
+                (click)="onGoogleLogin()"
+                [disabled]="isLoading() || isGoogleLoading()"
+                [attr.aria-label]="langService.t('auth.google.sign_in_with_google')">
+          <svg class="auth-google-btn__logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          <span *ngIf="!isGoogleLoading()">{{ langService.t('auth.google.sign_in_with_google') }}</span>
+          <span *ngIf="isGoogleLoading()">{{ langService.t('auth.google.signing_in') }}</span>
+        </button>
+
+        <div class="auth-divider"><span>{{ langService.t('auth.form.or') }}</span></div>
+
+        <button type="button" class="auth-demo-btn" (click)="loginAsDemo()" [disabled]="isLoading() || isGoogleLoading()">
+          <span class="material-icons">rocket_launch</span>
+          {{ langService.t('login.enter_demo') }}
+        </button>
+
+      </form>
+
+      <p class="auth-footer-text">
+        {{ langService.t('login.no_account') }}
+        <a routerLink="/auth/register" class="form-link">{{ langService.t('login.create_one') }}</a>
+      </p>
+
+    </div>
+  </div>
+</div>

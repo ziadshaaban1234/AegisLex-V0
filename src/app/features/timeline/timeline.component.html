@@ -1,0 +1,121 @@
+<div class="timeline-page page-enter">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <a *ngIf="caseId()" [routerLink]="['/app/cases', caseId()]" class="back-link"
+         [attr.aria-label]="lang.t('timeline.back_aria')">
+        <span class="material-icons" aria-hidden="true">arrow_back</span>
+        {{ lang.t('timeline.back_aria') }}
+      </a>
+      <a *ngIf="!caseId()" routerLink="/app/cases" class="back-link"
+         [attr.aria-label]="lang.t('timeline.back_aria')">
+        <span class="material-icons" aria-hidden="true">arrow_back</span>
+        {{ lang.t('timeline.back_aria') }}
+      </a>
+      <h1 class="section-title">{{ lang.t('timeline.title') }}</h1>
+      <p class="section-subtitle">{{ lang.t('timeline.subtitle') }}</p>
+    </div>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="timeline-filters" role="group">
+    <button
+      *ngFor="let f of filters()"
+      class="timeline-filter-chip"
+      [class.timeline-filter-chip--active]="activeFilter() === f.value"
+      (click)="activeFilter.set(f.value)">
+      <span class="material-icons" aria-hidden="true">{{ getEventIcon(f.value) }}</span>
+      {{ f.label }}
+    </button>
+  </div>
+
+  <!-- Loading Skeleton -->
+  <div *ngIf="loading()" class="tlsk-wrap">
+    <div class="tlsk-line"></div>
+    <div *ngFor="let i of [1,2,3,4,5]" class="tlsk-event"
+         [class.tlsk-event--right]="i % 2 === 0">
+      <div class="tlsk-event__dot"></div>
+      <div class="tlsk-event__card">
+        <div class="sk" style="width:80px;height:12px;border-radius:4px;margin-bottom:8px;"></div>
+        <div class="sk" [style.width]="(50 + (i%3)*15) + '%'" style="height:16px;border-radius:5px;margin-bottom:6px;"></div>
+        <div class="sk" style="width:85%;height:12px;border-radius:4px;margin-bottom:4px;"></div>
+        <div class="sk" style="width:65%;height:12px;border-radius:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && filteredEvents().length === 0" class="timeline-empty">
+    <div class="timeline-empty__icon">
+      <span class="material-icons" aria-hidden="true">timeline</span>
+    </div>
+    <h3>{{ lang.t('timeline.empty.title') }}</h3>
+    <p>{{ lang.t('timeline.empty.desc') }}</p>
+  </div>
+
+  <!-- Timeline -->
+  <div *ngIf="!loading() && filteredEvents().length > 0" class="timeline">
+    <div class="timeline__line" aria-hidden="true"></div>
+
+    <div *ngFor="let event of filteredEvents(); trackBy: trackById; let i = index"
+         class="timeline__event"
+         [class.timeline__event--right]="i % 2 === 0">
+
+      <!-- Dot -->
+      <div class="timeline__dot" [style.background]="getEventColor(event.eventType)" aria-hidden="true">
+        <span class="material-icons">{{ getEventIcon(event.eventType) }}</span>
+      </div>
+
+      <!-- Card -->
+      <div class="timeline__card card">
+        <div class="timeline__card-header" (click)="toggleExpand(event.id)">
+          <div class="timeline__card-meta">
+            <span class="timeline__date">{{ formatDate(event.date) }}</span>
+            <span class="timeline__type-badge"
+              [style.color]="getEventColor(event.eventType)"
+              [style.background]="getEventColor(event.eventType) + '1a'">
+              {{ event.eventType | titlecase }}
+            </span>
+          </div>
+          <h3 class="timeline__event-title">{{ event.title }}</h3>
+          <p class="timeline__event-desc" *ngIf="event.description">{{ event.description }}</p>
+
+          <button class="timeline__expand-btn" aria-hidden="true">
+            <span class="material-icons">
+              {{ expandedId() === event.id ? 'expand_less' : 'expand_more' }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Expanded details -->
+        <div *ngIf="expandedId() === event.id" class="timeline__card-body">
+          <div *ngIf="event.parties?.length" class="timeline__detail-row">
+            <span class="timeline__detail-label">{{ lang.t('timeline.event.parties') }}</span>
+            <div class="timeline__parties">
+              <span *ngFor="let party of event.parties" class="timeline__party-chip">
+                <span class="material-icons" aria-hidden="true">person</span>{{ party }}
+              </span>
+            </div>
+          </div>
+          <div *ngIf="event.documentReference" class="timeline__detail-row">
+            <span class="timeline__detail-label">{{ lang.t('timeline.event.doc_ref') }}</span>
+            <a *ngIf="event.documentId" [routerLink]="['/app/documents', event.documentId]"
+               class="timeline__doc-link">
+              <span class="material-icons" aria-hidden="true">description</span>
+              {{ event.documentReference }}
+            </a>
+            <span *ngIf="!event.documentId" class="timeline__doc-ref">
+              <span class="material-icons" aria-hidden="true">description</span>
+              {{ event.documentReference }}
+            </span>
+          </div>
+          <div *ngIf="event.details" class="timeline__detail-row">
+            <span class="timeline__detail-label">{{ lang.t('timeline.event.details') }}</span>
+            <p class="timeline__details-text">{{ event.details }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

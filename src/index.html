@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AegisLex — AI Legal Intelligence Platform</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AegisLex is an enterprise AI legal intelligence platform for DIFC and MENA-region law firms. Contract analysis, risk detection, legal search, and AI-powered insights.">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Preconnect to Google Fonts origins to reduce DNS/TCP latency -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Material Icons — load asynchronously to avoid render-blocking -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/icon?family=Material+Icons" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"></noscript>
+
+  <!-- Theme flash prevention: read stored theme BEFORE render -->
+  <script>
+    (function() {
+      try {
+        var theme = localStorage.getItem('aegislex_theme') || 'dark';
+        var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var root = document.documentElement;
+        if (isDark) {
+          root.classList.add('dark');
+          root.setAttribute('data-theme', 'dark');
+        } else {
+          root.classList.remove('dark');
+          root.setAttribute('data-theme', 'light');
+        }
+        // Prevent flash with opacity transition
+        root.style.colorScheme = isDark ? 'dark' : 'light';
+      } catch(e) {}
+    })();
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

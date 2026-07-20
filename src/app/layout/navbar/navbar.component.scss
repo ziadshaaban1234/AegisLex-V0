@@ -1,0 +1,465 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--navbar-height);
+  padding: 0 20px;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-primary);
+  box-shadow: var(--shadow-navbar);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  gap: 16px;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  &__menu-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: var(--color-bg-tertiary);
+      color: var(--color-text-primary);
+    }
+
+    .material-icons {
+      font-size: 22px;
+    }
+  }
+
+  // Search
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: 10px;
+    max-width: 420px;
+    width: 100%;
+    transition: all var(--transition-fast);
+    cursor: text;
+
+    &--active,
+    &:focus-within {
+      border-color: var(--color-aegis-primary);
+      box-shadow: 0 0 0 3px rgba(78, 78, 235, 0.12);
+      background: var(--color-bg-secondary);
+    }
+
+    @media (max-width: 768px) {
+      max-width: 200px;
+    }
+  }
+
+  &__search-icon {
+    font-size: 18px;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  &__search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    outline: none;
+    font-family: var(--font-sans);
+    min-width: 0;
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__search-shortcut {
+    font-size: 11px;
+    padding: 2px 6px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    background: var(--color-bg-secondary);
+    white-space: nowrap;
+
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+
+  // Action buttons
+  &__icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease,
+                transform 0.15s ease, box-shadow 0.18s ease;
+    text-decoration: none;
+    position: relative;
+
+    &:hover {
+      background: var(--color-bg-tertiary);
+      color: var(--color-text-primary);
+      border-color: var(--color-border-secondary);
+      transform: translateY(-1px);
+    }
+
+    &:active { transform: translateY(0) scale(0.94); }
+
+    .material-icons {
+      font-size: 20px;
+    }
+
+    // Special styling for theme toggle button
+    &.navbar__theme-btn {
+      position: relative;
+      overflow: hidden;
+
+      .material-icons {
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+      }
+
+      &:hover {
+        border-color: var(--color-aegis-primary);
+        color: var(--color-aegis-primary);
+        background: var(--color-aegis-light);
+        box-shadow: 0 0 0 3px var(--color-aegis-glow);
+      }
+
+      &:active .material-icons {
+        transform: scale(0.85) rotate(20deg);
+      }
+    }
+  }
+
+  // Dark mode: theme toggle shows sun icon
+  :host-context(.dark) &__theme-btn {
+    background: rgba(240, 180, 41, 0.08);
+    border-color: rgba(240, 180, 41, 0.25);
+    color: #f0b429;
+
+    &:hover {
+      background: rgba(240, 180, 41, 0.15) !important;
+      border-color: rgba(240, 180, 41, 0.5) !important;
+      color: #f0b429 !important;
+      box-shadow: 0 0 0 3px rgba(240, 180, 41, 0.2) !important;
+    }
+  }
+
+  // Light mode: theme toggle shows moon icon
+  :host-context(:not(.dark)) &__theme-btn {
+    background: rgba(78, 78, 235, 0.06);
+    border-color: rgba(78, 78, 235, 0.2);
+    color: var(--color-aegis-primary);
+
+    &:hover {
+      background: rgba(78, 78, 235, 0.12) !important;
+      border-color: rgba(78, 78, 235, 0.4) !important;
+      color: var(--color-aegis-primary) !important;
+      box-shadow: 0 0 0 3px rgba(78, 78, 235, 0.12) !important;
+    }
+  }
+
+  &__notif-btn {
+    position: relative;
+  }
+
+  &__notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: var(--color-danger);
+    color: white;
+    border-radius: 100px;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-bg-secondary);
+  }
+
+  &__new-case-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--color-aegis-primary);
+    color: white;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-aegis-hover);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-1px);
+    }
+
+    .material-icons {
+      font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+      span:last-child {
+        display: none;
+      }
+      padding: 8px;
+    }
+
+    @media (max-width: 640px) {
+      span:last-child {
+        display: none;
+      }
+      padding: 8px;
+    }
+  }
+
+  // User menu
+  &__user-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px 6px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-bg-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--color-bg-tertiary);
+      border-color: var(--color-border-secondary);
+    }
+  }
+
+  &__user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-aegis-primary), #8093fb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  &__user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+  }
+
+  &__user-role {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    text-transform: capitalize;
+  }
+}
+
+// Extra responsive fixes
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 10px;
+    gap: 8px;
+
+    &__search {
+      max-width: 140px;
+      padding: 6px 10px;
+    }
+
+    &__new-case-btn {
+      padding: 6px 10px;
+    }
+
+    &__icon-btn {
+      width: 32px;
+      height: 32px;
+    }
+
+    &__user-btn {
+      padding: 4px 6px 4px 4px;
+    }
+  }
+}
+
+// Language switcher (scoped to navbar)
+.lang-switcher {
+  flex-shrink: 0;
+
+  @media (max-width: 360px) {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+}
+
+// Very narrow screens (≤360px): condense to icon-only controls.
+// New Case label is already dropped at the 640px breakpoint above.
+// Language switcher label is hidden right here (see .lang-switcher below) —
+// it previously had no breakpoint at all, which overflowed the fixed-size box.
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0 8px;
+    gap: 6px;
+
+    &__right {
+      gap: 5px;
+    }
+
+    &__search {
+      max-width: 90px;
+      padding: 5px 8px;
+
+      .navbar__search-shortcut { display: none; }
+    }
+
+    &__new-case-btn {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .lang-switcher {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      justify-content: center;
+
+      // Verified bug fix: label text was never hidden at this breakpoint,
+      // so it overflowed the fixed 30px box and risked colliding with the
+      // adjacent icon buttons. Flag emoji alone remains a clear, tappable
+      // icon — button stays fully functional, same click handler.
+      .lang-switcher__label { display: none; }
+    }
+
+    &__icon-btn {
+      width: 30px;
+      height: 30px;
+    }
+
+    &__user-btn {
+      padding: 3px 5px 3px 3px;
+    }
+  }
+}
+
+// Smallest screens (≤320px): further collapse
+@media (max-width: 320px) {
+  .navbar {
+    &__search {
+      max-width: 70px;
+      padding: 5px 6px;
+    }
+  }
+}
+
+// ── Ultra-small responsive ─────────────────────────────────────────────────
+
+@media (max-width: 280px) {
+  .navbar {
+    padding: 0 6px;
+    gap: 4px;
+
+    &__search { display: none; } // too narrow — search in page content only
+
+    &__icon-btn { width: 26px; height: 26px; .material-icons { font-size: 16px; } }
+
+    &__new-case-btn {
+      width: 26px;
+      height: 26px;
+      padding: 0;
+    }
+
+    &__user-btn {
+      padding: 2px 4px 2px 2px;
+    }
+
+    &__user-avatar { width: 22px; height: 22px; }
+  }
+
+  .lang-switcher { display: none; }
+}
+
+@media (max-width: 240px) {
+  .navbar {
+    padding: 0 4px;
+    gap: 3px;
+
+    &__right { gap: 3px; }
+    &__icon-btn { width: 24px; height: 24px; .material-icons { font-size: 15px; } }
+    &__new-case-btn { width: 24px; height: 24px; }
+    &__user-btn { display: none; } // only icon buttons remain
+  }
+}
+
+@media (max-width: 200px) {
+  .navbar {
+    padding: 0 2px;
+    gap: 2px;
+
+    &__right { gap: 2px; }
+    &__icon-btn { width: 20px; height: 20px; .material-icons { font-size: 14px; } }
+    &__notif-badge { min-width: 12px; height: 12px; font-size: 8px; top: -2px; right: -2px; }
+  }
+}

@@ -1,0 +1,246 @@
+<!-- Navbar -->
+<nav class="landing-nav">
+  <div class="landing-nav__inner">
+    <div class="landing-nav__brand">
+      <div class="brand-icon">
+        <span class="material-icons">shield</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">AegisLex</span>
+        <span class="brand-tag">{{ lang.t('landing.brand_tag') }}</span>
+      </div>
+    </div>
+    <div class="landing-nav__links">
+      <a href="#features">{{ lang.t('landing.nav.features') }}</a>
+      <a href="#how-it-works">{{ lang.t('landing.nav.how_it_works') }}</a>
+      <a href="#testimonials">{{ lang.t('landing.nav.testimonials') }}</a>
+    </div>
+    <div class="landing-nav__actions">
+      <a routerLink="/auth/login" class="btn-ghost">{{ lang.t('landing.nav.sign_in') }}</a>
+      <a routerLink="/auth/register" class="btn-primary">{{ lang.t('landing.nav.get_started') }}</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero__bg-grid"></div>
+  <div class="hero__orbs">
+    <div class="orb orb--1"></div>
+    <div class="orb orb--2"></div>
+    <div class="orb orb--3"></div>
+  </div>
+
+  <div class="hero__content">
+    <div class="hero__scale-badge">
+      <app-scale-of-justice size="sm"></app-scale-of-justice>
+    </div>
+    <div class="hero__badge">
+      <span class="material-icons">auto_awesome</span>
+      {{ lang.t('landing.hero.badge') }}
+    </div>
+
+    <h1 class="hero__title">
+      {{ lang.t('landing.hero.title_line1') }}<br />
+      <span class="hero__title-gradient">{{ lang.t('landing.hero.title_gradient') }}</span>
+    </h1>
+
+    <p class="hero__subtitle">
+      {{ lang.t('landing.hero.subtitle') }}
+    </p>
+
+    <div class="hero__cta">
+      <a routerLink="/auth/register" class="hero__cta-primary">
+        <span class="material-icons">rocket_launch</span>
+        {{ lang.t('landing.hero.cta_primary') }}
+      </a>
+      <a routerLink="/auth/login" class="hero__cta-secondary">
+        <span class="material-icons">play_circle</span>
+        {{ lang.t('landing.hero.cta_secondary') }}
+      </a>
+    </div>
+
+    <div class="hero__stats">
+      <div *ngFor="let stat of stats()" class="hero__stat">
+        <span class="hero__stat-value">{{ stat.value }}</span>
+        <span class="hero__stat-label">{{ stat.label }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero visual / mockup -->
+  <div class="hero__visual">
+    <div class="hero__chat-preview">
+      <div class="chat-preview__header">
+        <div class="chat-preview__avatar">
+          <span class="material-icons">smart_toy</span>
+        </div>
+        <div>
+          <div class="chat-preview__name">Saul</div>
+          <div class="chat-preview__status">{{ lang.t('landing.chat.status') }}</div>
+        </div>
+      </div>
+      <div class="chat-preview__messages">
+        <div class="chat-msg chat-msg--user">
+          {{ lang.t('landing.chat.user_msg_1') }}
+        </div>
+        <div class="chat-msg chat-msg--saul">
+          <div class="chat-msg__typing">
+            <span></span><span></span><span></span>
+          </div>
+          {{ lang.t('landing.chat.saul_intro') }} <strong>{{ lang.t('landing.chat.risks_count') }}</strong>:
+          <ul>
+            <li>{{ lang.t('landing.chat.risk_item_1') }}</li>
+            <li>{{ lang.t('landing.chat.risk_item_2') }}</li>
+            <li>{{ lang.t('landing.chat.risk_item_3') }}</li>
+          </ul>
+        </div>
+        <div class="chat-msg chat-msg--user">
+          {{ lang.t('landing.chat.user_msg_2') }}
+        </div>
+        <div class="chat-msg chat-msg--saul">
+          {{ lang.t('landing.chat.saul_response_2') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Cards floating -->
+    <div class="hero__risk-card hero__risk-card--1">
+      <span class="risk-icon risk-critical">⚠</span>
+      <div>
+        <div class="risk-title">{{ lang.t('landing.risk_card.critical_title') }}</div>
+        <div class="risk-desc">{{ lang.t('landing.risk_card.critical_desc') }}</div>
+      </div>
+    </div>
+    <div class="hero__risk-card hero__risk-card--2">
+      <span class="risk-icon risk-success">✓</span>
+      <div>
+        <div class="risk-title">{{ lang.t('landing.risk_card.complete_title') }}</div>
+        <div class="risk-desc">{{ lang.t('landing.risk_card.complete_desc') }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">{{ lang.t('landing.features.badge') }}</div>
+      <h2 class="section-title">{{ lang.t('landing.features.title_line1') }}<br />{{ lang.t('landing.features.title_line2') }}</h2>
+      <p class="section-subtitle">
+        {{ lang.t('landing.features.subtitle') }}
+      </p>
+    </div>
+
+    <div class="features__grid">
+      <div
+        *ngFor="let feature of features()"
+        class="feature-card"
+      >
+        <div class="feature-card__icon" [style.background]="feature.color + '15'" [style.color]="feature.color">
+          <span class="material-icons">{{ feature.icon }}</span>
+        </div>
+        <h3 class="feature-card__title">{{ feature.title }}</h3>
+        <p class="feature-card__desc">{{ feature.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works" id="how-it-works">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">{{ lang.t('landing.how.badge') }}</div>
+      <h2 class="section-title">{{ lang.t('landing.how.title_line1') }}<br />{{ lang.t('landing.how.title_line2') }}</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step__number">01</div>
+        <div class="step__icon"><span class="material-icons">upload_file</span></div>
+        <h3 class="step__title">{{ lang.t('landing.how.step1.title') }}</h3>
+        <p class="step__desc">{{ lang.t('landing.how.step1.desc') }}</p>
+      </div>
+      <div class="step__connector"></div>
+      <div class="step">
+        <div class="step__number">02</div>
+        <div class="step__icon"><span class="material-icons">psychology</span></div>
+        <h3 class="step__title">{{ lang.t('landing.how.step2.title') }}</h3>
+        <p class="step__desc">{{ lang.t('landing.how.step2.desc') }}</p>
+      </div>
+      <div class="step__connector"></div>
+      <div class="step">
+        <div class="step__number">03</div>
+        <div class="step__icon"><span class="material-icons">insights</span></div>
+        <h3 class="step__title">{{ lang.t('landing.how.step3.title') }}</h3>
+        <p class="step__desc">{{ lang.t('landing.how.step3.desc') }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials" id="testimonials">
+  <div class="section-container">
+    <div class="section-header">
+      <div class="section-badge">{{ lang.t('landing.testimonials.badge') }}</div>
+      <h2 class="section-title">{{ lang.t('landing.testimonials.title_line1') }}<br />{{ lang.t('landing.testimonials.title_line2') }}</h2>
+    </div>
+
+    <div class="testimonials__grid">
+      <div *ngFor="let t of testimonials()" class="testimonial-card">
+        <div class="testimonial-card__quote">"{{ t.quote }}"</div>
+        <div class="testimonial-card__author">
+          <div class="testimonial-card__avatar">{{ t.avatar }}</div>
+          <div>
+            <div class="testimonial-card__name">{{ t.author }}</div>
+            <div class="testimonial-card__role">{{ t.role }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-section__inner">
+    <div class="cta-section__icon">
+      <span class="material-icons">shield</span>
+    </div>
+    <h2 class="cta-section__title">{{ lang.t('landing.cta.title') }}</h2>
+    <p class="cta-section__subtitle">
+      {{ lang.t('landing.cta.subtitle') }}
+    </p>
+    <div class="cta-section__actions">
+      <a routerLink="/auth/register" class="hero__cta-primary">
+        <span class="material-icons">rocket_launch</span>
+        {{ lang.t('landing.cta.primary') }}
+      </a>
+      <a routerLink="/auth/login" class="hero__cta-secondary" style="color: white; border-color: rgba(255,255,255,0.3);">
+        {{ lang.t('landing.cta.secondary') }}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="landing-footer">
+  <div class="landing-footer__inner">
+    <div class="landing-footer__brand">
+      <div class="brand-icon brand-icon--sm">
+        <span class="material-icons">shield</span>
+      </div>
+      <span class="brand-name">AegisLex</span>
+    </div>
+    <p class="landing-footer__copy">{{ lang.t('landing.footer.copyright') }}</p>
+    <div class="landing-footer__links">
+      <a href="#">{{ lang.t('landing.footer.privacy') }}</a>
+      <a href="#">{{ lang.t('landing.footer.terms') }}</a>
+      <a href="#">{{ lang.t('landing.footer.security') }}</a>
+      <a href="#">{{ lang.t('landing.footer.contact') }}</a>
+    </div>
+  </div>
+</footer>

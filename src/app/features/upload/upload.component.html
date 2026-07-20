@@ -1,0 +1,256 @@
+<div class="upload-page page-enter">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="section-title">{{ lang.t('upload.title') }}</h1>
+      <p class="section-subtitle">{{ lang.t('upload.subtitle') }}</p>
+    </div>
+    <a routerLink="/app/cases" class="btn-secondary">
+      <span class="material-icons" aria-hidden="true">folder_open</span>
+      {{ lang.t('upload.view_cases') }}
+    </a>
+  </div>
+
+  <!-- Upload skeleton -->
+  <ng-container *ngIf="loading()">
+    <div class="upsk-layout">
+      <div class="upsk-drop-card">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;border:2px dashed var(--color-border-secondary);border-radius:14px;margin:16px;">
+          <div class="skeleton" style="width:60px;height:60px;border-radius:14px;margin-bottom:16px;"></div>
+          <div class="skeleton" style="width:180px;height:17px;border-radius:5px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="width:120px;height:13px;border-radius:4px;margin-bottom:20px;"></div>
+          <div class="skeleton" style="width:130px;height:38px;border-radius:10px;"></div>
+        </div>
+        <div style="display:flex;gap:8px;padding:0 16px 16px;flex-wrap:wrap;">
+          <div *ngFor="let i of [1,2,3,4,5]" class="skeleton" style="height:28px;width:70px;border-radius:100px;"></div>
+        </div>
+      </div>
+      <div class="upsk-options">
+        <div class="upsk-option-card">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div class="skeleton" style="width:28px;height:28px;border-radius:6px;flex-shrink:0;"></div>
+            <div class="skeleton" style="width:120px;height:16px;border-radius:4px;"></div>
+          </div>
+          <div class="skeleton" style="width:100%;height:40px;border-radius:10px;"></div>
+        </div>
+        <div class="upsk-option-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="skeleton" style="width:28px;height:28px;border-radius:6px;flex-shrink:0;"></div>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <div class="skeleton" style="width:140px;height:15px;border-radius:4px;"></div>
+                <div class="skeleton" style="width:200px;height:12px;border-radius:4px;"></div>
+              </div>
+            </div>
+            <div class="skeleton" style="width:44px;height:26px;border-radius:100px;flex-shrink:0;"></div>
+          </div>
+        </div>
+        <div class="upsk-option-card">
+          <div class="skeleton" style="width:100%;height:44px;border-radius:10px;"></div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Upload Options -->
+  <div class="upload-options" *ngIf="!loading()">
+
+    <!-- Case Selector -->
+    <div class="upload-option-card">
+      <label class="upload-option-card__label">
+        <span class="material-icons" aria-hidden="true">folder_open</span>
+        {{ lang.t('upload.case_label') }}
+        <span class="optional">{{ lang.t('upload.case_optional') }}</span>
+      </label>
+      <select class="upload-select"
+        [value]="selectedCaseId()"
+        (change)="selectedCaseId.set($any($event.target).value)">
+        <option value="">{{ lang.t('upload.no_case') }}</option>
+        <option *ngFor="let c of cases()" [value]="c.id">
+          {{ c.caseNumber }} — {{ c.title }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Auto-analyze toggle -->
+    <div class="upload-option-card upload-option-card--toggle">
+      <div class="upload-option-card__info">
+        <span class="material-icons" aria-hidden="true">auto_awesome</span>
+        <div>
+          <strong>{{ lang.t('upload.auto_analyze_label') }}</strong>
+          <p>{{ lang.t('upload.auto_analyze_desc') }}</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" [checked]="analyzeAfterUpload()" (change)="toggleAnalyzeAfterUpload()" />
+        <span class="toggle-switch__slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Drop Zone -->
+  <div
+    class="drop-zone"
+    [class.drop-zone--active]="isDragOver()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()"
+  >
+    <input
+      #fileInput
+      type="file"
+      multiple
+      accept=".pdf,.png,.jpg,.jpeg,.tiff,.doc,.docx"
+      (change)="onFileSelect($event)"
+      style="display:none"
+    />
+    <div class="drop-zone__content">
+      <div class="drop-zone__icon" [class.drop-zone__icon--active]="isDragOver()">
+        <span class="material-icons" aria-hidden="true">{{ isDragOver() ? 'file_download' : 'cloud_upload' }}</span>
+      </div>
+      <h3 class="drop-zone__title">
+        {{ isDragOver() ? lang.t('upload.dropzone.release') : lang.t('upload.dropzone.drag') }}
+      </h3>
+      <p class="drop-zone__subtitle">{{ lang.t('upload.dropzone.browse') }}</p>
+      <div class="drop-zone__formats" aria-hidden="true">
+        <span class="format-badge">PDF</span>
+        <span class="format-badge">PNG</span>
+        <span class="format-badge">JPG</span>
+        <span class="format-badge">TIFF</span>
+        <span class="format-badge">DOCX</span>
+        <span class="format-badge">DOC</span>
+      </div>
+      <p class="drop-zone__limit">{{ lang.t('upload.dropzone.limit', [maxSizeMB]) }}</p>
+      <div class="drop-zone__ocr-notice">
+        <span class="material-icons" aria-hidden="true">document_scanner</span>
+        <span>{{ lang.t('upload.dropzone.ocr') }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Queue -->
+  <div *ngIf="uploadFiles().length > 0" class="upload-queue">
+    <div class="upload-queue__header">
+      <h3 class="upload-queue__title">
+        {{ uploadFiles().length === 1
+            ? lang.t('upload.queue.title', [uploadFiles().length])
+            : lang.t('upload.queue.title_plural', [uploadFiles().length]) }}
+      </h3>
+      <button *ngIf="hasCompleted" class="btn-ghost" (click)="clearCompleted()">
+        <span class="material-icons" aria-hidden="true">clear_all</span>
+        {{ lang.t('upload.queue.clear') }}
+      </button>
+    </div>
+
+    <div class="upload-queue__list">
+      <div *ngFor="let item of uploadFiles(); trackBy: trackById" class="upload-item">
+
+        <div class="upload-item__icon" [style.color]="getFileIconColor(item.file.name)">
+          <span class="material-icons" aria-hidden="true">{{ getFileIcon(item.file.name) }}</span>
+        </div>
+
+        <div class="upload-item__info">
+          <div class="upload-item__name">{{ item.file.name }}</div>
+          <div class="upload-item__meta">
+            <span>{{ formatFileSize(item.file.size) }}</span>
+            <span class="upload-item__status" [class]="'status-' + item.progress.status">
+              <span class="material-icons" aria-hidden="true">
+                {{ item.progress.status === 'complete'   ? 'check_circle' :
+                   item.progress.status === 'error'      ? 'error' :
+                   item.progress.status === 'processing' ? 'sync' : 'upload' }}
+              </span>
+              {{ getStatusLabel(item.progress.status, item.progress.progress) }}
+            </span>
+          </div>
+          <div *ngIf="item.progress.status === 'uploading'" class="upload-item__progress">
+            <div class="upload-item__progress-bar" [style.width.%]="item.progress.progress"></div>
+          </div>
+          <div *ngIf="item.progress.status === 'processing'" class="upload-item__progress">
+            <div class="upload-item__progress-bar upload-item__progress-bar--indeterminate"></div>
+          </div>
+        </div>
+
+        <div class="upload-item__actions">
+          <a *ngIf="item.documentId && item.progress.status === 'complete'"
+            [routerLink]="['/app/documents', item.documentId]"
+            class="upload-item__action-btn"
+            [attr.aria-label]="lang.t('upload.item.view_aria')">
+            <span class="material-icons" aria-hidden="true">open_in_new</span>
+          </a>
+          <button *ngIf="item.progress.status === 'error'"
+            class="upload-item__action-btn upload-item__action-btn--retry"
+            (click)="retryUpload(item)"
+            [attr.aria-label]="lang.t('upload.item.retry_aria')">
+            <span class="material-icons" aria-hidden="true">refresh</span>
+          </button>
+          <button class="upload-item__action-btn upload-item__action-btn--delete"
+            (click)="removeFile(item.id)"
+            [attr.aria-label]="lang.t('upload.item.remove_aria')">
+            <span class="material-icons" aria-hidden="true">close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- All done CTA -->
+    <div *ngIf="allDone" class="upload-done-banner">
+      <span class="material-icons" aria-hidden="true">check_circle</span>
+      <div>
+        <strong>{{ lang.t('upload.done.title') }}</strong>
+        <p>{{ lang.t('upload.done.desc') }}</p>
+      </div>
+      <div class="upload-done-banner__actions">
+        <a routerLink="/app/chat" class="btn-primary">
+          <span class="material-icons" aria-hidden="true">smart_toy</span>
+          {{ lang.t('upload.done.chat') }}
+        </a>
+        <a routerLink="/app/cases" class="btn-secondary">
+          <span class="material-icons" aria-hidden="true">folder_open</span>
+          {{ lang.t('upload.done.cases') }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supported Formats Info -->
+  <div class="upload-info-grid">
+    <div class="upload-info-card">
+      <div class="upload-info-card__icon" style="color:#ef4444;background:rgba(239,68,68,0.1)">
+        <span class="material-icons" aria-hidden="true">picture_as_pdf</span>
+      </div>
+      <div>
+        <h4>{{ lang.t('upload.info.pdf_title') }}</h4>
+        <p>{{ lang.t('upload.info.pdf_desc') }}</p>
+      </div>
+    </div>
+    <div class="upload-info-card">
+      <div class="upload-info-card__icon" style="color:#10b981;background:rgba(16,185,129,0.1)">
+        <span class="material-icons" aria-hidden="true">image</span>
+      </div>
+      <div>
+        <h4>{{ lang.t('upload.info.img_title') }}</h4>
+        <p>{{ lang.t('upload.info.img_desc') }}</p>
+      </div>
+    </div>
+    <div class="upload-info-card">
+      <div class="upload-info-card__icon" style="color:#3b82f6;background:rgba(59,130,246,0.1)">
+        <span class="material-icons" aria-hidden="true">description</span>
+      </div>
+      <div>
+        <h4>{{ lang.t('upload.info.word_title') }}</h4>
+        <p>{{ lang.t('upload.info.word_desc') }}</p>
+      </div>
+    </div>
+    <div class="upload-info-card">
+      <div class="upload-info-card__icon" style="color:#4e4eeb;background:rgba(78,78,235,0.1)">
+        <span class="material-icons" aria-hidden="true">translate</span>
+      </div>
+      <div>
+        <h4>{{ lang.t('upload.info.ocr_title') }}</h4>
+        <p>{{ lang.t('upload.info.ocr_desc') }}</p>
+      </div>
+    </div>
+  </div>
+</div>

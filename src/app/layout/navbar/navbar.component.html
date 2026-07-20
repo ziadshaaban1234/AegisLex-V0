@@ -1,0 +1,73 @@
+<header class="navbar">
+  <!-- Left: Toggle + Breadcrumb -->
+  <div class="navbar__left">
+    <button class="navbar__menu-btn" (click)="onToggleSidebar()" [attr.aria-label]="sidebarCollapsed ? langService.t('navbar.open_sidebar') : langService.t('navbar.close_sidebar')">
+      <span class="material-icons" aria-hidden="true">{{ sidebarCollapsed ? 'menu' : 'menu_open' }}</span>
+    </button>
+
+    <!-- Search Bar -->
+    <div class="navbar__search" [class.navbar__search--active]="showSearch()">
+      <span class="material-icons navbar__search-icon" aria-hidden="true">search</span>
+      <input
+        type="text"
+        class="navbar__search-input"
+        [placeholder]="langService.t('navbar.search_placeholder')"
+        [attr.aria-label]="langService.t('navbar.search_aria')"
+        [value]="searchQuery()"
+        (input)="onSearch($event)"
+        (focus)="openSearch()"
+        (blur)="closeSearch()"
+      />
+      <kbd class="navbar__search-shortcut" *ngIf="!showSearch()">⌘K</kbd>
+    </div>
+  </div>
+
+  <!-- Right: Actions -->
+  <div class="navbar__right">
+
+    <!-- New Case Quick Action -->
+    <a routerLink="/app/cases/new" class="navbar__action-btn navbar__new-case-btn">
+      <span class="material-icons" aria-hidden="true">add</span>
+      <span>{{ langService.t('common.new_case') }}</span>
+    </a>
+
+    <!-- Language Switcher -->
+    <button class="lang-switcher" (click)="toggleLanguage()" [title]="langService.currentLang() === 'en' ? langService.t('navbar.switch_to_arabic') : langService.t('navbar.switch_to_english')" [attr.aria-label]="langService.currentLang() === 'en' ? langService.t('navbar.switch_to_arabic') : langService.t('navbar.switch_to_english')">
+      <img class="lang-switcher__flag" alt="" [src]="langService.currentLang() === 'en' ? '/assets/flags/united-kingdom.svg' : '/assets/flags/egypt.svg'">
+      <span class="lang-switcher__label">{{ langService.currentLang() === 'en' ? 'EN' : 'AR' }}</span>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="navbar__icon-btn navbar__theme-btn" (click)="toggleTheme()" [title]="isDark() ? langService.t('navbar.theme_light') : langService.t('navbar.theme_dark')" [attr.aria-label]="isDark() ? langService.t('navbar.theme_light') : langService.t('navbar.theme_dark')">
+      <span class="material-icons" aria-hidden="true">{{ isDark() ? 'light_mode' : 'dark_mode' }}</span>
+    </button>
+
+    <!-- Notifications -->
+    <a routerLink="/app/notifications" class="navbar__icon-btn navbar__notif-btn" [title]="langService.t('navbar.notifications')" [attr.aria-label]="unreadCount() > 0 ? langService.t('navbar.unread_notifications', [unreadCount()]) : langService.t('navbar.notifications')">
+      <span class="material-icons" aria-hidden="true">notifications</span>
+      <span *ngIf="unreadCount() > 0" class="navbar__notif-badge" aria-hidden="true">
+        {{ unreadCount() > 99 ? '99+' : unreadCount() }}
+      </span>
+    </a>
+
+    <!-- User Menu -->
+    <a routerLink="/app/profile" class="navbar__user-btn">
+      <div class="navbar__user-avatar">
+        <img
+          *ngIf="currentUser()?.avatarUrl; else navInitials"
+          [src]="currentUser()!.avatarUrl"
+          [alt]="currentUser()!.firstName"
+          width="32"
+          height="32"
+        />
+        <ng-template #navInitials>
+          <span>{{ userInitials }}</span>
+        </ng-template>
+      </div>
+      <div class="navbar__user-info">
+        <span class="navbar__user-name">{{ currentUser()?.firstName }}</span>
+        <span class="navbar__user-role">{{ currentUser()?.role }}</span>
+      </div>
+    </a>
+  </div>
+</header>

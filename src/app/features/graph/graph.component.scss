@@ -1,0 +1,436 @@
+// ── Graph Page Layout ────────────────────────────────────────────────────────
+// .graph-page is a flex column so .graph-wrapper can flex-grow into the
+// remaining vertical space without any fragile calc(100vh - Npx) guesses.
+// The min-height on .graph-page ensures the column is tall enough for the
+// wrapper to have meaningful space even when page content above it is large.
+
+.graph-page {
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+  // Reserve viewport height minus navbar (64px) and page padding (24px × 2).
+  // CSS custom properties are already responsive via :root media queries.
+  min-height: calc(100vh - var(--navbar-height) - 48px);
+}
+
+.graph-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.graph-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 20px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.graph-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+
+  .material-icons { font-size: 16px; color: var(--color-aegis-primary); }
+  strong { color: var(--color-text-primary); font-weight: 700; }
+}
+
+.graph-stat-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border-primary);
+}
+
+.graph-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+// Controls Panel
+.graph-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+
+  &__section {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-primary);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: var(--shadow-card);
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.layout-buttons, .zoom-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.layout-btn, .zoom-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+
+  .material-icons { font-size: 17px; }
+
+  &:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-secondary);
+  }
+}
+
+.layout-btn--active {
+  background: var(--color-aegis-primary);
+  color: white;
+  border-color: transparent;
+
+  &:hover { background: var(--color-aegis-hover); color: white; }
+}
+
+// ── Graph Wrapper ────────────────────────────────────────────────────────────
+// flex: 1 causes this to fill ALL remaining vertical space inside .graph-page.
+// min-height is a safety floor so the graph is never too short to be usable.
+// No calc(100vh - Npx) — those values were fragile guesses that caused the gap.
+
+.graph-wrapper {
+  position: relative;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 20px;
+  overflow: hidden;
+  flex: 1;              // fill remaining space in .graph-page flex column
+  min-height: 380px;   // safety floor — never collapses on any screen
+}
+
+.graph-canvas {
+  // position: absolute + inset: 0 fills the .graph-wrapper (which is
+  // position: relative) regardless of whether the flex parent has a
+  // definite height.  Using height: 100% on a flex-grown child fails
+  // because the CSS spec requires an explicit pixel/% height on the
+  // parent for height: 100% to resolve — flex: 1 alone does not
+  // establish that definite height, so Cytoscape measured 0px and
+  // rendered a blank canvas.
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-primary);
+
+  &--loading { opacity: 0; }
+}
+
+// Loading State
+.graph-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 5;
+
+  &__spinner {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4e4eeb, #8093fb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulseGlow 1.5s ease-in-out infinite;
+    box-shadow: 0 8px 32px rgba(78,78,235,0.4);
+
+    .material-icons { font-size: 32px; color: white; }
+  }
+
+  p { font-size: 14px; color: var(--color-text-secondary); margin: 0; }
+}
+
+// Info Panel — top-right (LTR) / top-left (RTL)
+.graph-info-panel {
+  position: absolute;
+  top: 16px;
+  inset-inline-end: 16px;
+  width: 260px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card-hover);
+  overflow: hidden;
+  animation: slideUp 0.25s ease-out;
+  z-index: 10;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--color-border-primary);
+    background: var(--color-bg-primary);
+
+    h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0;
+      flex: 1;
+      font-family: var(--font-sans);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    transition: color var(--transition-fast);
+    .material-icons { font-size: 16px; }
+    &:hover { color: var(--color-text-primary); }
+  }
+
+  &__body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.graph-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  span:first-child {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  strong {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-align: right;
+  }
+}
+
+.mono-text { font-family: var(--font-mono); font-size: 11px !important; }
+
+.strength-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-end;
+
+  &__fill {
+    height: 6px;
+    background: var(--color-aegis-primary);
+    border-radius: 100px;
+    transition: width 0.5s ease;
+    min-width: 2px;
+    max-width: 80px;
+  }
+
+  span { font-size: 11px; font-weight: 600; color: var(--color-aegis-primary); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+// Only adjust spacing and control sizing per breakpoint.
+// .graph-wrapper height is handled by flex: 1 — no overrides needed.
+// .graph-page min-height adjusts for smaller page padding at each breakpoint.
+
+@media (max-width: 1280px) {
+  // page padding drops to 20px × 2 = 40px
+  .graph-page { min-height: calc(100vh - var(--navbar-height) - 40px); }
+}
+
+@media (max-width: 1024px) {
+  // page padding drops to 18px × 2 = 36px
+  .graph-page { min-height: calc(100vh - var(--navbar-height) - 36px); }
+}
+
+@media (max-width: 768px) {
+  // page padding drops to 14px × 2 = 28px; navbar-height is 56px via :root
+  .graph-page { min-height: calc(100vh - var(--navbar-height) - 28px); }
+
+  .graph-wrapper {
+    min-height: 300px;
+    border-radius: 14px;
+  }
+
+  .graph-controls {
+    gap: 6px;
+
+    &__section {
+      padding: 8px 10px;
+      gap: 6px;
+    }
+  }
+
+  .layout-btn, .zoom-btn {
+    width: 28px;
+    height: 28px;
+    .material-icons { font-size: 15px; }
+  }
+
+  .graph-info-panel {
+    width: calc(100vw - 32px);
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .graph-stats-bar {
+    padding: 10px 14px;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  // page padding drops to 10px × 2 = 20px
+  .graph-page { min-height: calc(100vh - var(--navbar-height) - 20px); }
+
+  .graph-wrapper {
+    min-height: 260px;
+    border-radius: 12px;
+  }
+
+  .graph-controls {
+    gap: 4px;
+
+    &__section {
+      padding: 6px 8px;
+      gap: 5px;
+    }
+
+    &__label { font-size: 9px; }
+  }
+
+  .layout-btn, .zoom-btn {
+    width: 26px;
+    height: 26px;
+    .material-icons { font-size: 14px; }
+  }
+
+  .graph-stat-divider { display: none; }
+}
+
+@media (max-width: 360px) {
+  // page padding drops to ~8px × 2 = 16px (320px breakpoint uses 8px)
+  .graph-page { min-height: calc(100vh - var(--navbar-height) - 16px); }
+
+  .graph-wrapper { min-height: 220px; }
+
+  .graph-controls {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 280px) {
+  .graph-page { min-height: calc(100vh - var(--navbar-height) - 12px); }
+
+  .graph-wrapper { min-height: 180px; border-radius: 8px; }
+
+  .graph-controls {
+    gap: 2px;
+    &__section { padding: 4px 6px; }
+    &__label   { display: none; }
+  }
+
+  .layout-btn, .zoom-btn { width: 22px; height: 22px; .material-icons { font-size: 13px; } }
+
+  .graph-stats-bar { padding: 6px 10px; gap: 8px; }
+  .graph-stat { font-size: 11px; }
+  .graph-legend { gap: 8px; }
+  .legend-item { font-size: 10px; }
+}
+
+@media (max-width: 240px) {
+  .graph-wrapper { min-height: 140px; }
+
+  .graph-controls { flex-wrap: wrap; }
+
+  .graph-stats-bar { padding: 4px 8px; }
+  .graph-stat strong { font-size: 11px; }
+}
+
+@media (max-width: 200px) {
+  .graph-wrapper { min-height: 100px; }
+  .graph-header  { margin-bottom: 8px; }
+  .graph-stats-bar, .graph-controls { display: none; }
+}

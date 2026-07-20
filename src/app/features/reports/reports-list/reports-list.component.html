@@ -1,0 +1,190 @@
+<div class="reports-page page-enter">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="section-title">{{ langService.t('reports.page_title') }}</h1>
+      <p class="section-subtitle">{{ langService.t('reports.page_subtitle') }}</p>
+    </div>
+    <button class="btn-primary" (click)="showGenerateModal.set(true)">
+      <span class="material-icons">add</span> {{ langService.t('reports.generate_btn') }}
+    </button>
+  </div>
+
+  <!-- Reports skeleton — mirrors real reports-grid card layout -->
+  <div *ngIf="loading()" class="rpsk-grid">
+    <div *ngFor="let i of [1,2,3,4,5,6]" class="rpsk-card">
+      <!-- Card header: type icon + type badge + status badge -->
+      <div class="rpsk-card__header">
+        <div class="sk sk--rounded" style="width:44px;height:44px;flex-shrink:0;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
+          <div class="sk sk--pill" style="width:90px;height:22px;"></div>
+          <div class="sk sk--pill" style="width:72px;height:20px;"></div>
+        </div>
+        <div class="sk sk--rounded" style="width:32px;height:32px;flex-shrink:0;"></div>
+      </div>
+      <!-- Report title -->
+      <div class="sk" [style.width]="(50 + i*6) + '%'" style="height:17px;border-radius:5px;margin-bottom:8px;"></div>
+      <!-- Case ref -->
+      <div class="sk" style="width:55%;height:13px;border-radius:4px;margin-bottom:14px;"></div>
+      <!-- Summary lines -->
+      <div *ngFor="let w of [95,80,65]" class="sk" [style.width]="w + '%'" style="height:12px;border-radius:4px;margin-bottom:6px;"></div>
+      <!-- Footer: pages + date + actions -->
+      <div class="rpsk-card__footer">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="sk" style="width:52px;height:12px;border-radius:4px;"></div>
+          <div class="sk" style="width:70px;height:12px;border-radius:4px;"></div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <div class="sk sk--rounded" style="width:80px;height:32px;"></div>
+          <div class="sk sk--rounded" style="width:80px;height:32px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading() && reports().length === 0" class="reports-empty">
+    <div class="reports-empty__icon"><span class="material-icons">description</span></div>
+    <h3>{{ langService.t('reports.empty_title') }}</h3>
+    <p>{{ langService.t('reports.empty_desc') }}</p>
+    <button class="btn-primary" (click)="showGenerateModal.set(true)">
+      <span class="material-icons">add</span> {{ langService.t('reports.generate_btn') }}
+    </button>
+  </div>
+
+  <!-- Reports Grid -->
+  <div *ngIf="!loading() && reports().length > 0" class="reports-grid">
+    <div *ngFor="let report of reports(); trackBy: trackById" class="report-card">
+
+      <div class="report-card__header">
+        <div class="report-card__type-icon">
+          <span class="material-icons">{{ getReportTypeIcon(report.reportType) }}</span>
+        </div>
+        <div class="report-card__meta">
+          <span class="report-type-badge">{{ getReportTypeLabel(report.reportType) }}</span>
+          <span class="status-chip"
+            [style.color]="getStatusConfig(report.status).color"
+            [style.background]="getStatusConfig(report.status).bg">
+            <span class="material-icons"
+              [class.spin]="report.status === 'generating'">
+              {{ getStatusConfig(report.status).icon }}
+            </span>
+            {{ report.status | titlecase }}
+          </span>
+        </div>
+      </div>
+
+      <div class="report-card__body">
+        <h3 class="report-card__title">{{ report.title }}</h3>
+        <p *ngIf="report.summary" class="report-card__summary">{{ report.summary }}</p>
+        <p class="report-card__date">{{ langService.t('reports.card.generated') }} {{ formatDate(report.createdAt) }}</p>
+      </div>
+
+      <div class="report-card__actions">
+        <a *ngIf="report.status === 'completed'"
+          [routerLink]="['/app/reports', report.id]"
+          class="report-action-btn report-action-btn--primary">
+          <span class="material-icons">open_in_new</span> {{ langService.t('reports.card.view') }}
+        </a>
+        <button *ngIf="report.status === 'completed'"
+          class="report-action-btn"
+          (click)="downloadReport(report.id, 'pdf')"
+          [attr.aria-label]="langService.t('reports.card.download_pdf_aria')">
+          <span class="material-icons">picture_as_pdf</span> {{ langService.t('reports.card.pdf') }}
+        </button>
+        <button *ngIf="report.status === 'completed'"
+          class="report-action-btn"
+          (click)="downloadReport(report.id, 'docx')"
+          [attr.aria-label]="langService.t('reports.card.download_word_aria')">
+          <span class="material-icons">description</span> {{ langService.t('reports.card.word') }}
+        </button>
+        <button class="report-action-btn report-action-btn--danger"
+          (click)="deleteReport(report.id)"
+          [attr.aria-label]="langService.t('reports.card.delete_aria')">
+          <span class="material-icons">delete_outline</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Report Modal -->
+  <div *ngIf="showGenerateModal()" class="modal-overlay" (click)="showGenerateModal.set(false)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="generate-report-title" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <h3 id="generate-report-title">{{ langService.t('reports.modal.title') }}</h3>
+        <button class="modal__close" (click)="showGenerateModal.set(false)" [attr.aria-label]="langService.t('reports.modal.close_aria')">
+          <span class="material-icons" aria-hidden="true">close</span>
+        </button>
+      </div>
+
+      <div class="modal__body">
+
+        <!-- Report Type -->
+        <div class="form-section">
+          <label class="form-label">{{ langService.t('reports.modal.type_label') }}</label>
+          <div class="type-grid">
+            <label *ngFor="let t of reportTypes" class="type-option"
+              [class.type-option--selected]="generateForm.reportType === t.value">
+              <input type="radio" [(ngModel)]="generateForm.reportType" [value]="t.value" style="display:none" />
+              <span class="material-icons">{{ t.icon }}</span>
+              {{ langService.t(t.labelKey) }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Case -->
+        <div class="form-section">
+          <label class="form-label">{{ langService.t('reports.modal.case_label') }}</label>
+          <select class="form-field" [(ngModel)]="generateForm.caseId">
+            <option value="">{{ langService.t('reports.modal.no_case') }}</option>
+            <option *ngFor="let c of cases()" [value]="c.id">{{ c.caseNumber }} — {{ c.title }}</option>
+          </select>
+        </div>
+
+        <!-- Title -->
+        <div class="form-section">
+          <label class="form-label">{{ langService.t('reports.modal.title_label') }}</label>
+          <input type="text" class="form-field" [(ngModel)]="generateForm.title"
+            [placeholder]="langService.t('reports.modal.title_ph')" />
+        </div>
+
+        <!-- Include Options -->
+        <div class="form-section">
+          <label class="form-label">{{ langService.t('reports.modal.sections_label') }}</label>
+          <div class="include-options">
+            <label class="include-option">
+              <input type="checkbox" [(ngModel)]="generateForm.includeRisks" />
+              <span class="material-icons">warning</span>
+              {{ langService.t('reports.modal.risk_analysis') }}
+            </label>
+            <label class="include-option">
+              <input type="checkbox" [(ngModel)]="generateForm.includeTimeline" />
+              <span class="material-icons">timeline</span>
+              {{ langService.t('reports.modal.timeline') }}
+            </label>
+            <label class="include-option">
+              <input type="checkbox" [(ngModel)]="generateForm.includeRecommendations" />
+              <span class="material-icons">lightbulb</span>
+              {{ langService.t('reports.modal.recommendations') }}
+            </label>
+            <label class="include-option">
+              <input type="checkbox" [(ngModel)]="generateForm.includeSimilarCases" />
+              <span class="material-icons">content_copy</span>
+              {{ langService.t('reports.modal.similar_cases') }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn-secondary" (click)="showGenerateModal.set(false)">{{ langService.t('reports.modal.cancel') }}</button>
+        <button class="btn-primary" (click)="generateReport()" [disabled]="generating()">
+          <div *ngIf="generating()" class="btn-spinner-sm"></div>
+          <span *ngIf="!generating()" class="material-icons">auto_awesome</span>
+          {{ generating() ? langService.t('reports.modal.generating') : langService.t('reports.modal.generate') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

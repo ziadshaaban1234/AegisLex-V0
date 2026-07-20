@@ -1,0 +1,155 @@
+<div class="case-form-page page-enter">
+  <div class="case-form-page__header">
+    <a routerLink="/app/cases" class="back-link">
+      <span class="material-icons" aria-hidden="true">arrow_back</span>
+      {{ lang.t('case_form.back') }}
+    </a>
+    <h1 class="section-title">{{ lang.t('case_form.title') }}</h1>
+    <p class="section-subtitle">{{ lang.t('case_form.subtitle') }}</p>
+  </div>
+
+  <div class="case-form-layout">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="case-form" novalidate>
+
+      <!-- Title -->
+      <div class="form-section">
+        <label class="form-label" for="case-title">
+          {{ lang.t('case_form.label.title') }} <span class="required">*</span>
+        </label>
+        <input type="text" id="case-title" formControlName="title" class="form-field"
+          [class.error]="fieldError('title')"
+          [attr.aria-invalid]="fieldError('title') ? true : null"
+          [attr.aria-describedby]="fieldError('title') ? 'case-title-error' : null"
+          [placeholder]="lang.t('case_form.placeholder.title')" />
+        <p *ngIf="fieldError('title')" id="case-title-error" class="field-error">{{ fieldError('title') }}</p>
+        <p class="field-hint">{{ lang.t('case_form.hint.title') }}</p>
+      </div>
+
+      <!-- Description -->
+      <div class="form-section">
+        <label class="form-label" for="case-description">{{ lang.t('case_form.label.desc') }}</label>
+        <textarea id="case-description" formControlName="description" class="form-field form-textarea" rows="4"
+          [placeholder]="lang.t('case_form.placeholder.desc')"></textarea>
+      </div>
+
+      <!-- Case Type -->
+      <div class="form-section">
+        <label class="form-label">{{ lang.t('case_form.label.type') }} <span class="required">*</span></label>
+        <div class="type-selector">
+          <label *ngFor="let type of caseTypes()"
+            class="type-option"
+            [class.type-option--selected]="form.get('caseType')?.value === type.value">
+            <input type="radio" formControlName="caseType" [value]="type.value" style="display:none" />
+            <span class="material-icons" aria-hidden="true">{{ type.icon }}</span>
+            {{ type.label }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Priority -->
+      <div class="form-section">
+        <label class="form-label">{{ lang.t('case_form.label.priority') }} <span class="required">*</span></label>
+        <div class="priority-selector">
+          <label *ngFor="let p of priorities()"
+            class="priority-option"
+            [class.priority-option--selected]="form.get('priority')?.value === p.value"
+            [style.--p-color]="p.color">
+            <input type="radio" formControlName="priority" [value]="p.value" style="display:none" />
+            {{ p.label }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Client Name -->
+      <div class="form-section">
+        <label class="form-label" for="case-client-name">{{ lang.t('case_form.label.client') }}</label>
+        <div class="form-input-icon-wrap">
+          <span class="material-icons" aria-hidden="true">person</span>
+          <input type="text" id="case-client-name" formControlName="clientName"
+            class="form-field form-field--icon"
+            [placeholder]="lang.t('case_form.placeholder.client')" />
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-section">
+        <label class="form-label">{{ lang.t('case_form.label.tags') }}</label>
+        <div class="tag-input-wrap">
+          <div class="tag-input-box">
+            <div class="tag-chips">
+              <span *ngFor="let tag of tags()" class="tag-chip">
+                {{ tag }}
+                <button type="button" (click)="removeTag(tag)"
+                  [attr.aria-label]="lang.t('case_form.tag.remove_aria', [tag])">
+                  <span class="material-icons" aria-hidden="true">close</span>
+                </button>
+              </span>
+            </div>
+            <input
+              type="text"
+              [value]="tagInput()"
+              (input)="tagInput.set($any($event.target).value)"
+              (keydown)="onTagKeydown($event)"
+              [placeholder]="tags().length === 0 ? lang.t('case_form.placeholder.tags') : ''"
+              class="tag-input"
+            />
+          </div>
+          <button type="button" class="tag-add-btn" (click)="addTag()"
+            [disabled]="!tagInput().trim()"
+            [attr.aria-label]="lang.t('case_form.tag.add_aria')">
+            <span class="material-icons" aria-hidden="true">add</span>
+          </button>
+        </div>
+        <p class="field-hint">{{ lang.t('case_form.hint.tags') }}</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <a routerLink="/app/cases" class="btn-secondary">{{ lang.t('case_form.cancel') }}</a>
+        <button type="submit" class="btn-primary" [disabled]="isLoading()">
+          <div *ngIf="isLoading()" class="btn-spinner-sm"></div>
+          <span *ngIf="!isLoading()" class="material-icons" aria-hidden="true">add_circle</span>
+          {{ isLoading() ? lang.t('case_form.submit.creating') : lang.t('case_form.submit.create') }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Tips Panel -->
+    <div class="case-form-tips">
+      <h3 class="case-form-tips__title">
+        <span class="material-icons" aria-hidden="true">tips_and_updates</span>
+        {{ lang.t('case_form.tips.title') }}
+      </h3>
+      <div class="tips-list">
+        <div class="tip-item">
+          <div class="tip-item__num">1</div>
+          <div>
+            <strong>{{ lang.t('case_form.tips.step1') }}</strong>
+            <p>{{ lang.t('case_form.tips.step1_desc') }}</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-item__num">2</div>
+          <div>
+            <strong>{{ lang.t('case_form.tips.step2') }}</strong>
+            <p>{{ lang.t('case_form.tips.step2_desc') }}</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-item__num">3</div>
+          <div>
+            <strong>{{ lang.t('case_form.tips.step3') }}</strong>
+            <p>{{ lang.t('case_form.tips.step3_desc') }}</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-item__num">4</div>
+          <div>
+            <strong>{{ lang.t('case_form.tips.step4') }}</strong>
+            <p>{{ lang.t('case_form.tips.step4_desc') }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,123 @@
+.rec-page { max-width: 1000px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.priority-filter { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.priority-filter-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 100px; border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-surface); color: var(--color-text-secondary);
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--transition-fast);
+  font-family: var(--font-sans);
+  &:hover { border-color: rgba(78,78,235,0.3); color: var(--color-aegis-primary); }
+  &--active { background: var(--color-aegis-primary); border-color: transparent; color: white; }
+}
+.priority-count { padding: 1px 6px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+.recsk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeInUp 0.35s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.recsk-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+
+  @for $i from 1 through 5 {
+    &:nth-child(#{$i}) { animation-delay: #{($i - 1) * 60}ms; }
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--color-border-primary);
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: var(--color-bg-primary);
+  }
+}
+.rec-list { display: flex; flex-direction: column; gap: 14px; }
+.rec-card {
+  padding: 22px 24px; background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary); border-left: 3px solid;
+  border-radius: 14px; transition: all var(--transition-base);
+  &:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-1px); }
+  &__header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  &__title { font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin: 0 0 8px; font-family: var(--font-sans); }
+  &__desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin: 0 0 14px; }
+  &__actions-list { display: flex; flex-direction: column; gap: 8px; padding: 14px; background: var(--color-bg-primary); border-radius: 10px; }
+}
+.priority-badge {
+  display: flex; align-items: center; gap: 4px; padding: 4px 10px;
+  border-radius: 100px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  .material-icons { font-size: 13px; }
+}
+.category-badge {
+  padding: 3px 10px; background: var(--color-bg-primary); border: 1px solid var(--color-border-primary);
+  border-radius: 100px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary);
+}
+.rec-action-item {
+  display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--color-text-secondary);
+  .material-icons { font-size: 17px; color: var(--color-text-muted); }
+}
+.rec-empty {
+  display: flex; flex-direction: column; align-items: center; padding: 50px 24px; gap: 10px; text-align: center;
+  .material-icons { font-size: 40px; color: var(--color-text-muted); }
+  p { font-size: 14px; color: var(--color-text-tertiary); margin: 0; }
+}
+
+// ── Responsive ──────────────────────────────────────────────────────────────
+
+@media (max-width: 640px) {
+  .priority-filter {
+    gap: 6px;
+  }
+
+  .priority-filter-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .rec-card {
+    padding: 16px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rec-card {
+    padding: 14px 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .rec-card {
+    padding: 12px;
+    &__title { font-size: 14px; }
+    &__desc  { font-size: 12px; }
+  }
+
+  .priority-filter-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 320px) {
+  .rec-card { padding: 10px; }
+  .priority-filter { flex-wrap: wrap; gap: 4px; }
+  .priority-filter-btn { font-size: 10px; padding: 4px 7px; }
+}
+
+@media (max-width: 280px) {
+  .rec-card { padding: 8px; }
+  .rec-action-item { font-size: 11px; }
+}

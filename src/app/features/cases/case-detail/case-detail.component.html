@@ -1,0 +1,337 @@
+<div class="case-detail page-enter">
+
+  <!-- Loading skeleton -->
+  <div *ngIf="loading()" class="cdsk-wrap">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <div class="sk sk--circle" style="width:20px;height:20px;"></div>
+      <div class="sk" style="width:60px;height:14px;border-radius:4px;"></div>
+    </div>
+    <div class="cdsk-header">
+      <div class="cdsk-header__top">
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="sk sk--pill" style="width:90px;height:22px;"></div>
+            <div class="sk sk--pill" style="width:72px;height:22px;"></div>
+            <div class="sk sk--pill" style="width:80px;height:22px;"></div>
+          </div>
+          <div class="sk" style="width:65%;height:28px;border-radius:6px;"></div>
+          <div class="sk" style="width:38%;height:15px;border-radius:4px;"></div>
+          <div style="display:flex;gap:20px;margin-top:4px;">
+            <div class="sk" style="width:110px;height:13px;border-radius:4px;"></div>
+            <div class="sk" style="width:130px;height:13px;border-radius:4px;"></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <div class="sk sk--rounded" style="width:100px;height:38px;"></div>
+          <div class="sk sk--rounded" style="width:120px;height:38px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cdsk-tabs">
+      <div *ngFor="let t of [1,2,3,4,5]" class="sk sk--rounded" style="height:36px;width:100px;"></div>
+    </div>
+    <div class="cdsk-content">
+      <div class="cdsk-main-panel">
+        <div class="cdsk-panel-header">
+          <div class="sk" style="width:140px;height:17px;border-radius:5px;"></div>
+          <div class="sk sk--pill" style="width:80px;height:28px;"></div>
+        </div>
+        <div *ngFor="let d of [1,2,3,4]" class="cdsk-doc-row">
+          <div class="sk sk--rounded" style="width:38px;height:38px;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
+            <div class="sk" [style.width]="(45 + d*8) + '%'" style="height:15px;border-radius:4px;"></div>
+            <div class="sk" style="width:35%;height:12px;border-radius:4px;"></div>
+          </div>
+          <div class="sk sk--pill" style="width:70px;height:24px;flex-shrink:0;"></div>
+        </div>
+      </div>
+      <div class="cdsk-side-panel">
+        <div class="cdsk-info-card">
+          <div class="sk" style="width:100px;height:16px;border-radius:5px;margin-bottom:16px;"></div>
+          <div *ngFor="let r of [1,2,3,4,5]" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-border-primary);">
+            <div class="sk" style="width:80px;height:13px;border-radius:4px;"></div>
+            <div class="sk" [style.width]="(60 + r*10) + 'px'" style="height:13px;border-radius:4px;"></div>
+          </div>
+        </div>
+        <div class="cdsk-risk-card">
+          <div class="sk" style="width:90px;height:16px;border-radius:5px;margin-bottom:16px;"></div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+            <div class="sk sk--circle" style="width:64px;height:64px;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+              <div class="sk" style="width:50px;height:22px;border-radius:5px;"></div>
+              <div class="sk" style="width:80px;height:12px;border-radius:4px;"></div>
+            </div>
+          </div>
+          <div *ngFor="let r of [1,2,3]" style="margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+              <div class="sk" style="width:80px;height:12px;border-radius:4px;"></div>
+              <div class="sk" style="width:30px;height:12px;border-radius:4px;"></div>
+            </div>
+            <div style="height:6px;background:var(--color-bg-tertiary);border-radius:100px;overflow:hidden;">
+              <div class="sk" [style.width]="(30 + r*20) + '%'" style="height:100%;border-radius:100px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading() && case_()">
+
+    <!-- Case Header -->
+    <div class="case-header">
+      <a routerLink="/app/cases" class="back-link">
+        <span class="material-icons" aria-hidden="true">arrow_back</span>
+        {{ lang.t('case_detail.back') }}
+      </a>
+
+      <div class="case-header__main">
+        <div class="case-header__info">
+          <div class="case-header__badges">
+            <span class="mono-badge">{{ case_()!.caseNumber }}</span>
+            <span class="priority-badge"
+              [style.color]="getPriorityConfig(case_()!.priority).color"
+              [style.background]="getPriorityConfig(case_()!.priority).bg">
+              {{ case_()!.priority | titlecase }}
+            </span>
+            <span class="status-badge"
+              [style.color]="getStatusConfig(case_()!.status).color"
+              [style.background]="getStatusConfig(case_()!.status).bg">
+              {{ case_()!.status | titlecase }}
+            </span>
+          </div>
+          <h1 class="case-header__title">{{ case_()!.title }}</h1>
+          <div class="case-header__meta">
+            <span *ngIf="case_()!.clientName">
+              <span class="material-icons" aria-hidden="true">person</span> {{ case_()!.clientName }}
+            </span>
+            <span>
+              <span class="material-icons" aria-hidden="true">calendar_today</span>
+              {{ lang.t('case_detail.created') }} {{ formatDate(case_()!.createdAt) }}
+            </span>
+            <span>
+              <span class="material-icons" aria-hidden="true">description</span>
+              {{ docCountLabel() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="case-header__actions">
+          <a [routerLink]="['/app/chat']" [queryParams]="{caseId: case_()!.id}" class="btn-primary">
+            <span class="material-icons" aria-hidden="true">smart_toy</span>
+            {{ lang.t('case_detail.ask_saul') }}
+          </a>
+          <a [routerLink]="['/app/upload']" [queryParams]="{caseId: case_()!.id}" class="btn-secondary">
+            <span class="material-icons" aria-hidden="true">upload_file</span>
+            {{ lang.t('case_detail.upload') }}
+          </a>
+          <button class="btn-secondary" (click)="analyzeAllDocuments()">
+            <span class="material-icons" aria-hidden="true">analytics</span>
+            {{ lang.t('case_detail.analyze_all') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Risk Score Banner -->
+      <div *ngIf="case_()!.riskScore !== undefined" class="risk-banner"
+        [class.risk-banner--critical]="case_()!.riskScore! >= 70"
+        [class.risk-banner--medium]="case_()!.riskScore! >= 40 && case_()!.riskScore! < 70"
+        [class.risk-banner--low]="case_()!.riskScore! < 40">
+        <div class="risk-banner__score">
+          <span class="material-icons" aria-hidden="true">warning</span>
+          {{ lang.t('case_detail.risk_score') }}: <strong>{{ case_()!.riskScore }}/100</strong>
+        </div>
+        <div class="risk-banner__bar">
+          <div class="risk-banner__bar-fill" [style.width.%]="case_()!.riskScore"></div>
+        </div>
+        <a [routerLink]="['/app/analysis', documents()[0]?.id]" *ngIf="documents().length > 0" class="risk-banner__link">
+          {{ lang.t('case_detail.view_analysis') }} <span class="material-icons" aria-hidden="true">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="case-tabs">
+      <button *ngFor="let tab of tabs()"
+        class="case-tab"
+        [class.case-tab--active]="activeTab() === tab.id"
+        (click)="activeTab.set(tab.id)">
+        <span class="material-icons" aria-hidden="true">{{ tab.icon }}</span>
+        {{ tab.label }}
+        <span *ngIf="tab.id === 'documents' && documents().length > 0" class="tab-count">
+          {{ documents().length }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="case-tab-content">
+
+      <!-- Overview Tab -->
+      <div *ngIf="activeTab() === 'overview'" class="tab-panel">
+        <div class="overview-grid">
+          <div class="info-card">
+            <h3 class="info-card__title">{{ lang.t('case_detail.overview.title') }}</h3>
+            <div class="info-rows">
+              <div class="info-row"><span>{{ lang.t('case_detail.overview.type') }}</span><strong>{{ case_()!.caseType | titlecase }}</strong></div>
+              <div class="info-row"><span>{{ lang.t('case_detail.overview.priority') }}</span>
+                <span class="priority-badge"
+                  [style.color]="getPriorityConfig(case_()!.priority).color"
+                  [style.background]="getPriorityConfig(case_()!.priority).bg">
+                  {{ case_()!.priority | titlecase }}
+                </span>
+              </div>
+              <div class="info-row"><span>{{ lang.t('case_detail.overview.status') }}</span>
+                <span class="status-badge"
+                  [style.color]="getStatusConfig(case_()!.status).color"
+                  [style.background]="getStatusConfig(case_()!.status).bg">
+                  {{ case_()!.status | titlecase }}
+                </span>
+              </div>
+              <div class="info-row"><span>{{ lang.t('case_detail.overview.client') }}</span><strong>{{ case_()!.clientName || '—' }}</strong></div>
+              <div class="info-row"><span>{{ lang.t('case_detail.overview.created') }}</span><strong>{{ formatDate(case_()!.createdAt) }}</strong></div>
+              <div class="info-row"><span>{{ lang.t('case_detail.overview.updated') }}</span><strong>{{ formatDate(case_()!.updatedAt) }}</strong></div>
+            </div>
+          </div>
+
+          <div class="info-card" *ngIf="case_()!.description">
+            <h3 class="info-card__title">{{ lang.t('case_detail.overview.desc') }}</h3>
+            <p class="info-card__desc">{{ case_()!.description }}</p>
+          </div>
+
+          <div class="info-card" *ngIf="case_()!.tags?.length">
+            <h3 class="info-card__title">{{ lang.t('case_detail.overview.tags') }}</h3>
+            <div class="tags-row">
+              <span *ngFor="let tag of case_()!.tags" class="case-tag">{{ tag }}</span>
+            </div>
+          </div>
+
+          <div class="info-card quick-actions-card">
+            <h3 class="info-card__title">{{ lang.t('case_detail.quick.title') }}</h3>
+            <div class="quick-actions">
+              <a [routerLink]="['/app/reports']" [queryParams]="{caseId: case_()!.id}" class="quick-action">
+                <span class="material-icons" aria-hidden="true">description</span>
+                <div><strong>{{ lang.t('case_detail.quick.report') }}</strong><p>{{ lang.t('case_detail.quick.report_desc') }}</p></div>
+              </a>
+              <a [routerLink]="['/app/timeline', case_()!.id]" class="quick-action">
+                <span class="material-icons" aria-hidden="true">timeline</span>
+                <div><strong>{{ lang.t('case_detail.quick.timeline') }}</strong><p>{{ lang.t('case_detail.quick.timeline_desc') }}</p></div>
+              </a>
+              <a [routerLink]="['/app/graph', case_()!.id]" class="quick-action">
+                <span class="material-icons" aria-hidden="true">hub</span>
+                <div><strong>{{ lang.t('case_detail.quick.graph') }}</strong><p>{{ lang.t('case_detail.quick.graph_desc') }}</p></div>
+              </a>
+              <a [routerLink]="['/app/similar-cases']" [queryParams]="{caseId: case_()!.id}" class="quick-action">
+                <span class="material-icons" aria-hidden="true">content_copy</span>
+                <div><strong>{{ lang.t('case_detail.quick.similar') }}</strong><p>{{ lang.t('case_detail.quick.similar_desc') }}</p></div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents Tab -->
+      <div *ngIf="activeTab() === 'documents'" class="tab-panel">
+        <div class="tab-panel__header">
+          <h3>{{ lang.t('case_detail.docs.header', [documents().length]) }}</h3>
+          <a [routerLink]="['/app/upload']" [queryParams]="{caseId: case_()!.id}" class="btn-primary">
+            <span class="material-icons" aria-hidden="true">add</span>
+            {{ lang.t('case_detail.docs.add') }}
+          </a>
+        </div>
+
+        <div *ngIf="documents().length === 0" class="empty-docs">
+          <span class="material-icons" aria-hidden="true">folder_open</span>
+          <p>{{ lang.t('case_detail.docs.empty') }}</p>
+          <a [routerLink]="['/app/upload']" [queryParams]="{caseId: case_()!.id}" class="btn-secondary">
+            {{ lang.t('case_detail.docs.upload_first') }}
+          </a>
+        </div>
+
+        <div class="docs-list" *ngIf="documents().length > 0">
+          <a *ngFor="let doc of documents(); trackBy: trackById"
+             [routerLink]="['/app/documents', doc.id]" class="doc-row">
+            <div class="doc-row__icon">
+              <span class="material-icons" aria-hidden="true"
+                [style.color]="doc.fileType === 'pdf' ? '#ef4444' : '#3b82f6'">
+                {{ doc.fileType === 'pdf' ? 'picture_as_pdf' : 'description' }}
+              </span>
+            </div>
+            <div class="doc-row__info">
+              <p class="doc-row__name">{{ doc.originalName }}</p>
+              <span class="doc-row__meta">
+                {{ formatFileSize(doc.fileSize) }} ·
+                {{ doc.fileType.toUpperCase() }} ·
+                {{ lang.t('case_detail.docs.uploaded') }} {{ formatDate(doc.createdAt) }}
+              </span>
+            </div>
+            <div class="doc-row__status">
+              <span class="material-icons" aria-hidden="true"
+                [style.color]="getDocStatusColor(doc.status)">
+                {{ getDocStatusIcon(doc.status) }}
+              </span>
+              <span class="doc-row__status-label" [style.color]="getDocStatusColor(doc.status)">
+                {{ doc.analysisStatus | titlecase }}
+              </span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Analysis Tab -->
+      <div *ngIf="activeTab() === 'analysis'" class="tab-panel">
+        <div class="tab-panel__header">
+          <h3>{{ lang.t('case_detail.analysis.title') }}</h3>
+          <button class="btn-primary" (click)="analyzeAllDocuments()">
+            <span class="material-icons" aria-hidden="true">auto_awesome</span>
+            {{ lang.t('case_detail.analysis.run') }}
+          </button>
+        </div>
+        <div *ngIf="documents().length === 0" class="empty-docs">
+          <span class="material-icons" aria-hidden="true">analytics</span>
+          <p>{{ lang.t('case_detail.analysis.empty') }}</p>
+        </div>
+        <div *ngIf="documents().length > 0" class="analysis-list">
+          <a *ngFor="let doc of documents(); trackBy: trackById"
+             [routerLink]="['/app/analysis', doc.id]" class="analysis-item">
+            <span class="material-icons" aria-hidden="true">description</span>
+            <div class="analysis-item__info">
+              <strong>{{ doc.originalName }}</strong>
+              <span [style.color]="getDocStatusColor(doc.analysisStatus)">
+                {{ doc.analysisStatus | titlecase }}
+              </span>
+            </div>
+            <span class="material-icons" aria-hidden="true">chevron_right</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Timeline Tab -->
+      <div *ngIf="activeTab() === 'timeline'" class="tab-panel">
+        <div class="tab-panel__redirect">
+          <span class="material-icons" aria-hidden="true">timeline</span>
+          <h3>{{ lang.t('case_detail.timeline.title') }}</h3>
+          <p>{{ lang.t('case_detail.timeline.desc') }}</p>
+          <a [routerLink]="['/app/timeline', case_()!.id]" class="btn-primary">
+            <span class="material-icons" aria-hidden="true">open_in_new</span>
+            {{ lang.t('case_detail.timeline.open') }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Graph Tab -->
+      <div *ngIf="activeTab() === 'graph'" class="tab-panel">
+        <div class="tab-panel__redirect">
+          <span class="material-icons" aria-hidden="true">hub</span>
+          <h3>{{ lang.t('case_detail.graph.title') }}</h3>
+          <p>{{ lang.t('case_detail.graph.desc') }}</p>
+          <a [routerLink]="['/app/graph', case_()!.id]" class="btn-primary">
+            <span class="material-icons" aria-hidden="true">open_in_new</span>
+            {{ lang.t('case_detail.graph.open') }}
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+</div>

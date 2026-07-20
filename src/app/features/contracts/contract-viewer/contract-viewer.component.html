@@ -1,0 +1,292 @@
+<div class="viewer-page page-enter">
+
+  <!-- Loading Skeleton -->
+  <div *ngIf="loading()" class="vsk-wrap">
+    <div class="vsk-toolbar">
+      <div class="sk sk--circle" style="width:32px;height:32px;flex-shrink:0;"></div>
+      <div class="sk" style="width:200px;height:16px;border-radius:5px;flex:1;"></div>
+      <div style="display:flex;gap:8px;margin-inline-start:auto;">
+        <div class="sk sk--rounded" style="width:90px;height:34px;"></div>
+        <div class="sk sk--rounded" style="width:34px;height:34px;"></div>
+      </div>
+    </div>
+    <div class="vsk-body">
+      <div class="vsk-main">
+        <div class="vsk-zoom-bar">
+          <div class="sk sk--rounded" style="width:28px;height:28px;"></div>
+          <div class="sk" style="width:52px;height:14px;border-radius:4px;"></div>
+          <div class="sk sk--rounded" style="width:28px;height:28px;"></div>
+          <div style="margin-inline-start:auto;display:flex;gap:8px;align-items:center;">
+            <div class="sk sk--rounded" style="width:28px;height:28px;"></div>
+            <div class="sk" style="width:60px;height:14px;border-radius:4px;"></div>
+            <div class="sk sk--rounded" style="width:28px;height:28px;"></div>
+          </div>
+        </div>
+        <div class="vsk-doc-area">
+          <div *ngFor="let p of [1,2,3]" class="vsk-doc-page">
+            <div *ngFor="let l of [1,2,3,4,5,6,7]" class="sk"
+              [style.width]="(55 + (p*l % 5) * 9) + '%'"
+              style="height:13px;border-radius:4px;margin-bottom:9px;">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="vsk-panel">
+        <div class="vsk-panel-tabs">
+          <div *ngFor="let t of [1,2,3,4]" class="sk sk--pill" style="height:32px;width:80px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px;">
+          <div *ngFor="let i of [1,2,3,4,5,6]" class="sk"
+            [style.width]="(40 + (i%4)*12) + '%'"
+            style="height:13px;border-radius:4px;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Viewer -->
+  <ng-container *ngIf="!loading() && document()">
+
+    <!-- Toolbar -->
+    <div class="viewer-toolbar">
+      <a routerLink="/app/cases" class="viewer-back">
+        <span class="material-icons" aria-hidden="true">arrow_back</span>
+        {{ lang.t('viewer.back') }}
+      </a>
+
+      <div class="viewer-toolbar__doc-info">
+        <span class="material-icons viewer-toolbar__doc-icon" aria-hidden="true"
+          [style.color]="document()!.fileType === 'pdf' ? '#ef4444' : '#3b82f6'">
+          {{ document()!.fileType === 'pdf' ? 'picture_as_pdf' : 'description' }}
+        </span>
+        <div>
+          <div class="viewer-toolbar__doc-name">{{ document()!.originalName }}</div>
+          <div class="viewer-toolbar__doc-meta">
+            {{ document()!.fileType.toUpperCase() }} ·
+            {{ formatFileSize(document()!.fileSize) }} ·
+            {{ lang.t('viewer.language_label') }}: {{ document()!.language | titlecase }}
+          </div>
+        </div>
+      </div>
+
+      <div class="viewer-toolbar__actions">
+        <button class="btn-primary"
+          [disabled]="analyzing()"
+          (click)="analyze()">
+          <div *ngIf="analyzing()" class="btn-spinner-sm" aria-hidden="true"></div>
+          <span *ngIf="!analyzing()" class="material-icons" aria-hidden="true">auto_awesome</span>
+          {{ analyzing() ? lang.t('viewer.analyzing_btn') : lang.t('viewer.analyze_btn') }}
+        </button>
+        <button class="btn-icon"
+          (click)="download()"
+          [attr.aria-label]="lang.t('viewer.download_aria')">
+          <span class="material-icons" aria-hidden="true">download</span>
+        </button>
+        <a *ngIf="document()!.caseId" [routerLink]="['/app/analysis', document()!.id]" class="btn-secondary">
+          <span class="material-icons" aria-hidden="true">analytics</span>
+          {{ lang.t('viewer.full_analysis') }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Risk Banner -->
+    <div *ngIf="document()!.riskScore !== undefined" class="viewer-risk-banner"
+      [class.risk-banner--critical]="document()!.riskScore! >= 70"
+      [class.risk-banner--medium]="document()!.riskScore! >= 40 && document()!.riskScore! < 70"
+      [class.risk-banner--low]="document()!.riskScore! < 40">
+      <div class="viewer-risk-banner__left">
+        <span class="material-icons" aria-hidden="true">warning</span>
+        <span>{{ lang.t('viewer.risk.score') }}: <strong>{{ document()!.riskScore }}/100</strong></span>
+        <span class="viewer-risk-banner__desc">{{ getRiskDesc(document()!.riskScore!) }}</span>
+      </div>
+      <div class="viewer-risk-banner__bar">
+        <div class="viewer-risk-banner__bar-fill"
+          [style.width.%]="document()!.riskScore"
+          [style.background]="getRiskColor(document()!.riskScore!)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Main body: document canvas + side panel -->
+    <div class="viewer-body">
+
+      <!-- Document Canvas -->
+      <div class="viewer-canvas-wrap">
+
+        <!-- Zoom + Pagination Controls -->
+        <div class="viewer-controls">
+          <div class="viewer-zoom">
+            <button class="viewer-ctrl-btn" (click)="zoomOut()" [disabled]="zoom() <= 50"
+              [attr.aria-label]="lang.t('viewer.zoom_out_aria')">
+              <span class="material-icons" aria-hidden="true">remove</span>
+            </button>
+            <button class="viewer-ctrl-btn viewer-ctrl-btn--zoom" (click)="resetZoom()"
+              [attr.aria-label]="lang.t('viewer.zoom_reset_aria')">
+              {{ zoom() }}%
+            </button>
+            <button class="viewer-ctrl-btn" (click)="zoomIn()" [disabled]="zoom() >= 200"
+              [attr.aria-label]="lang.t('viewer.zoom_in_aria')">
+              <span class="material-icons" aria-hidden="true">add</span>
+            </button>
+          </div>
+
+          <div class="viewer-pagination" *ngIf="totalPages() > 1"
+            [attr.aria-label]="lang.t('viewer.page_aria', [currentPage(), totalPages()])">
+            <button class="viewer-ctrl-btn" (click)="prevPage()" [disabled]="currentPage() === 1"
+              [attr.aria-label]="lang.t('viewer.prev_page_aria')">
+              <span class="material-icons" aria-hidden="true">chevron_left</span>
+            </button>
+            <span class="viewer-page-info">{{ currentPage() }} / {{ totalPages() }}</span>
+            <button class="viewer-ctrl-btn" (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+              [attr.aria-label]="lang.t('viewer.next_page_aria')">
+              <span class="material-icons" aria-hidden="true">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Document Page -->
+        <div class="viewer-canvas" [style.transform]="'scale(' + zoom()/100 + ')'">
+          <div class="viewer-doc-page">
+            <div *ngIf="document()!.extractedText; else noTextBlock" class="viewer-doc-text">
+              {{ document()!.extractedText }}
+            </div>
+            <ng-template #noTextBlock>
+              <div class="viewer-doc-placeholder">
+                <span class="material-icons" aria-hidden="true">article</span>
+                <p>{{ document()!.originalName }}</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side Panel -->
+      <div class="viewer-panel">
+
+        <!-- Panel Tabs -->
+        <div class="viewer-panel-tabs" role="tablist">
+          <button *ngFor="let panel of panels()"
+            class="viewer-panel-tab"
+            [class.viewer-panel-tab--active]="activePanel() === panel.id"
+            (click)="activePanel.set(panel.id)"
+            role="tab"
+            [attr.aria-selected]="activePanel() === panel.id">
+            <span class="material-icons" aria-hidden="true">{{ panel.icon }}</span>
+            {{ panel.label }}
+          </button>
+        </div>
+
+        <!-- Extracted Text Panel -->
+        <div *ngIf="activePanel() === 'text'" class="viewer-panel-body" role="tabpanel">
+          <div *ngIf="document()!.extractedText" class="viewer-extracted-text">
+            {{ document()!.extractedText }}
+          </div>
+          <div *ngIf="!document()!.extractedText" class="viewer-panel-empty">
+            <span class="material-icons" aria-hidden="true">article</span>
+            <p>{{ analyzing() ? lang.t('viewer.saul_analyzing') : lang.t('viewer.run_analysis') }}</p>
+          </div>
+        </div>
+
+        <!-- Analysis Panel -->
+        <div *ngIf="activePanel() === 'analysis'" class="viewer-panel-body" role="tabpanel">
+          <div *ngIf="document()!.analysis; else noAnalysis" class="viewer-analysis">
+
+            <div *ngIf="document()!.analysis?.summary" class="viewer-analysis__section">
+              <p class="viewer-analysis__summary">{{ document()!.analysis!.summary }}</p>
+            </div>
+
+            <div *ngIf="document()!.analysis?.risks?.length" class="viewer-analysis__section">
+              <h4 class="viewer-analysis__section-title">
+                <span class="material-icons" aria-hidden="true">warning</span>
+                {{ lang.t('viewer.analysis.risks_label') }}
+                <span class="viewer-analysis__count">{{ document()!.analysis!.risks.length }}</span>
+              </h4>
+              <div *ngFor="let risk of document()!.analysis!.risks" class="viewer-risk-item">
+                <div class="viewer-risk-item__header">
+                  <span class="viewer-risk-item__dot"
+                    [style.background]="getRiskSeverityColor(risk.severity)"></span>
+                  <strong>{{ risk.title }}</strong>
+                  <span class="viewer-risk-item__severity"
+                    [style.color]="getRiskSeverityColor(risk.severity)">
+                    {{ risk.severity | titlecase }}
+                  </span>
+                </div>
+                <p class="viewer-risk-item__desc">{{ risk.description }}</p>
+              </div>
+            </div>
+
+            <div *ngIf="document()!.analysis?.entities?.length" class="viewer-analysis__section">
+              <h4 class="viewer-analysis__section-title">
+                <span class="material-icons" aria-hidden="true">hub</span>
+                {{ lang.t('viewer.analysis.entities_label') }}
+              </h4>
+              <div class="viewer-entities">
+                <span *ngFor="let entity of document()!.analysis!.entities" class="viewer-entity-chip">
+                  <span class="material-icons" aria-hidden="true">{{ getEntityIcon(entity.type) }}</span>
+                  {{ entity.value }}
+                </span>
+              </div>
+            </div>
+
+          </div>
+          <ng-template #noAnalysis>
+            <div class="viewer-panel-empty">
+              <span class="material-icons" aria-hidden="true">analytics</span>
+              <p>{{ analyzing() ? lang.t('viewer.saul_analyzing') : lang.t('viewer.run_analysis') }}</p>
+              <button *ngIf="!analyzing()" class="btn-primary" (click)="analyze()">
+                <span class="material-icons" aria-hidden="true">auto_awesome</span>
+                {{ lang.t('viewer.run_analysis') }}
+              </button>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Risks Panel -->
+        <div *ngIf="activePanel() === 'risks'" class="viewer-panel-body" role="tabpanel">
+          <div *ngIf="document()!.analysis?.risks?.length; else noRisks">
+            <div *ngFor="let risk of document()!.analysis!.risks" class="viewer-risk-item">
+              <div class="viewer-risk-item__header">
+                <span class="viewer-risk-item__dot"
+                  [style.background]="getRiskSeverityColor(risk.severity)"></span>
+                <strong>{{ risk.title }}</strong>
+                <span class="viewer-risk-item__severity"
+                  [style.color]="getRiskSeverityColor(risk.severity)">
+                  {{ risk.severity | titlecase }}
+                </span>
+              </div>
+              <p class="viewer-risk-item__desc">{{ risk.description }}</p>
+              <p *ngIf="risk.clause" class="viewer-risk-item__clause">{{ risk.clause }}</p>
+            </div>
+          </div>
+          <ng-template #noRisks>
+            <div class="viewer-panel-empty">
+              <span class="material-icons" aria-hidden="true">shield</span>
+              <p>{{ document()!.analysisStatus === 'processed' ? lang.t('viewer.no_risks') : lang.t('viewer.run_analysis') }}</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Entities Panel -->
+        <div *ngIf="activePanel() === 'entities'" class="viewer-panel-body" role="tabpanel">
+          <div *ngIf="document()!.analysis?.entities?.length; else noEntities">
+            <div class="viewer-entities viewer-entities--full">
+              <span *ngFor="let entity of document()!.analysis!.entities" class="viewer-entity-chip">
+                <span class="material-icons" aria-hidden="true">{{ getEntityIcon(entity.type) }}</span>
+                {{ entity.value }}
+                <span class="viewer-entity-chip__type">{{ entity.type }}</span>
+              </span>
+            </div>
+          </div>
+          <ng-template #noEntities>
+            <div class="viewer-panel-empty">
+              <span class="material-icons" aria-hidden="true">hub</span>
+              <p>{{ lang.t('viewer.no_entities') }}</p>
+            </div>
+          </ng-template>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+</div>

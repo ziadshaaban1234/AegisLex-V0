@@ -1,0 +1,145 @@
+<div class="auth-page" [class.auth-light]="!themeService.isDark()">
+
+  <!-- Theme Toggle -->
+  <button class="auth-theme-toggle" (click)="themeService.toggleTheme()"
+          [title]="themeService.isDark() ? langService.t('auth.theme.switch_to_light') : langService.t('auth.theme.switch_to_dark')"
+          [attr.aria-label]="themeService.isDark() ? langService.t('auth.theme.switch_to_light') : langService.t('auth.theme.switch_to_dark')">
+    <span class="material-icons">{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</span>
+  </button>
+
+  <!-- Language Switcher -->
+  <button class="lang-switcher auth-lang-switcher"
+          (click)="langService.setLanguage(langService.currentLang() === 'en' ? 'ar' : 'en')"
+          [title]="langService.currentLang() === 'en' ? langService.t('navbar.switch_to_arabic') : langService.t('navbar.switch_to_english')"
+          [attr.aria-label]="langService.currentLang() === 'en' ? langService.t('navbar.switch_to_arabic') : langService.t('navbar.switch_to_english')">
+    <img class="lang-switcher__flag" alt="" [src]="langService.currentLang() === 'en' ? '/assets/flags/united-kingdom.svg' : '/assets/flags/egypt.svg'">
+    <span class="lang-switcher__label">{{ langService.currentLang() === 'en' ? 'EN' : 'AR' }}</span>
+  </button>
+
+  <div class="auth-page__bg">
+    <div class="orb orb--1"></div>
+    <div class="orb orb--2"></div>
+  </div>
+
+  <!-- Brand Panel -->
+  <div class="auth-page__brand">
+    <div class="auth-brand">
+      <div class="auth-brand__logo">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="auth-shield-svg">
+          <path d="M32 4 L10 13 L10 32 C10 46 19.8 57.5 32 61 C44.2 57.5 54 46 54 32 L54 13 Z" fill="white" opacity="0.15"/>
+          <path d="M32 8 L13 16.5 L13 32 C13 44.8 21.4 55.2 32 58.4 C42.6 55.2 51 44.8 51 32 L51 16.5 Z" fill="none" stroke="white" stroke-width="1.8" opacity="0.65"/>
+          <circle cx="32" cy="17" r="2" fill="#fbbf24" opacity="0.9"/>
+          <g class="shield-scale-beam" style="transform-origin:32px 28px;transform-box:fill-box;">
+            <line x1="32" y1="19" x2="32" y2="47" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+            <line x1="14" y1="28" x2="50" y2="28" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+            <circle cx="32" cy="28" r="2.5" fill="#fbbf24"/>
+            <path d="M11 38 Q17 43 23 38" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+            <path d="M41 38 Q47 43 53 38" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.85"/>
+          </g>
+          <rect x="28.5" y="47" width="7" height="2.5" rx="1.25" fill="white" opacity="0.5"/>
+        </svg>
+      </div>
+      <h1 class="auth-brand__name">AegisLex</h1>
+      <p class="auth-brand__tagline">{{ langService.t('auth.brand.tagline') }}</p>
+
+      <div class="otp-hint-panel">
+        <div class="otp-hint-panel__demo">
+          <span class="material-icons">info</span>
+          <div>
+            <strong>{{ langService.t('otp.demo_mode.title') }}</strong>
+            <p>{{ langService.t('otp.demo_mode.body_prefix') }} <code>123456</code> {{ langService.t('otp.demo_mode.body_suffix') }}</p>
+          </div>
+        </div>
+        <div class="otp-hint-panel__tips">
+          <p class="otp-hint__title">{{ langService.t('otp.tips_title') }}</p>
+          <ul>
+            <li>{{ langService.t('otp.tip.spam') }}</li>
+            <li>{{ langService.t('otp.tip.expiry') }}</li>
+            <li>{{ langService.t('otp.tip.paste') }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Panel -->
+  <div class="auth-page__form-panel">
+    <div class="auth-form-container">
+
+      <a routerLink="/auth/forgot-password" class="auth-back-link">
+        <span class="material-icons">arrow_back</span> {{ langService.t('otp.back') }}
+      </a>
+
+      <!-- Success -->
+      <div *ngIf="isSuccess()" class="auth-success-state">
+        <div class="auth-success-icon">
+          <span class="material-icons">verified</span>
+        </div>
+        <h2 class="auth-success-title">{{ langService.t('otp.success.title') }}</h2>
+        <p class="auth-success-body">{{ langService.t('otp.success.body') }}</p>
+        <div class="otp-redirect-spinner"><div class="btn-spinner"></div></div>
+      </div>
+
+      <!-- OTP Form -->
+      <div *ngIf="!isSuccess()">
+        <div class="auth-form-header">
+          <div class="auth-form-header__icon">
+            <span class="material-icons">vpn_key</span>
+          </div>
+          <h2 class="auth-form-header__title">{{ langService.t('otp.title') }}</h2>
+          <p class="auth-form-header__subtitle">
+            {{ langService.t('otp.subtitle_prefix') }}<br>
+            <strong class="auth-email-highlight">{{ email() || langService.t('otp.your_email_fallback') }}</strong>
+          </p>
+        </div>
+
+        <!-- OTP Input -->
+        <div class="otp-inputs" [class.otp-inputs--error]="!!otpError()" [class.otp-inputs--loading]="isLoading()">
+          <input
+            *ngFor="let i of otpArray"
+            #otpInput
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-input"
+            [class.otp-input--filled]="digits()[i]"
+            [class.otp-input--error]="!!otpError()"
+            [disabled]="isLoading() || isSuccess()"
+            [attr.aria-label]="langService.t('otp.digit_aria', [i + 1, otpLength])"
+            (input)="onDigitInput($event, i)"
+            (keydown)="onKeyDown($event, i)"
+            (paste)="onPaste($event, i)"
+          />
+        </div>
+
+        <!-- Progress dots -->
+        <div class="otp-progress">
+          <div *ngFor="let i of otpArray" class="otp-progress__dot" [class.filled]="digits()[i]"></div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading()" class="otp-verifying">
+          <div class="btn-spinner"></div>
+          <span>{{ langService.t('otp.verifying') }}</span>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="otpError() && !isLoading()" class="auth-error" role="alert" aria-live="assertive">
+          <span class="material-icons" aria-hidden="true">error_outline</span>{{ langService.t(otpError()) }}
+        </div>
+
+        <!-- Countdown / Resend -->
+        <div class="otp-resend">
+          <span *ngIf="!canResend()" class="otp-countdown">
+            {{ langService.t('otp.resend_in') }} <strong>{{ countdown() }}s</strong>
+          </span>
+          <button *ngIf="canResend()" type="button" class="otp-resend-btn" (click)="resendCode()">
+            <span class="material-icons">refresh</span>
+            {{ langService.t('otp.resend_action') }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

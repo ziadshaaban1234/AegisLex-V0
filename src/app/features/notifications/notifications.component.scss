@@ -1,0 +1,108 @@
+.notifications-page { max-width: 900px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.nfsk-list {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: fadeInUp 0.35s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.nfsk-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border-primary);
+  animation: fadeIn 0.3s ease both;
+
+  @for $i from 1 through 7 {
+    &:nth-child(#{$i}) { animation-delay: #{($i - 1) * 50}ms; }
+  }
+
+  &:last-child { border-bottom: none; }
+}
+.notif-list { display: flex; flex-direction: column; gap: 8px; }
+.notif-item {
+  display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px;
+  background: var(--color-bg-surface); border: 1px solid var(--color-border-primary);
+  border-radius: 14px; cursor: pointer; transition: all var(--transition-fast); position: relative;
+
+  &:hover { background: var(--color-bg-primary); box-shadow: var(--shadow-card); }
+  &--unread { border-left: 3px solid var(--color-aegis-primary); background: rgba(78,78,235,0.02); }
+
+  &__icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; .material-icons { font-size: 22px; } }
+  &__content { flex: 1; min-width: 0; }
+  &__title { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin: 0 0 3px; }
+  &__message { font-size: 13px; color: var(--color-text-secondary); margin: 0 0 6px; line-height: 1.4; }
+  &__time { font-size: 11px; color: var(--color-text-muted); }
+  &__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-aegis-primary); flex-shrink: 0; margin-top: 6px; box-shadow: 0 0 6px rgba(78,78,235,0.5); }
+}
+.notif-empty { display: flex; flex-direction: column; align-items: center; padding: 60px 24px; gap: 12px; text-align: center; color: var(--color-text-muted); .material-icons { font-size: 40px; } p { font-size: 14px; margin: 0; } }
+
+
+// sk utilities
+// sk utilities for skeleton
+.sk {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-tertiary) 25%,
+    var(--color-border-primary) 50%,
+    var(--color-bg-tertiary) 75%
+  );
+  background-size: 600px 100%;
+  animation: nfskShimmer 1.6s ease-in-out infinite;
+}
+.sk--circle  { border-radius: 50%;   }
+.sk--rounded { border-radius: 12px; }
+
+@keyframes nfskShimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+// ── Responsive ──────────────────────────────────────────────────────────────
+
+@media (max-width: 640px) {
+  .notif-item {
+    padding: 12px 14px;
+    gap: 10px;
+
+    &__icon { width: 34px; height: 34px; }
+    &__title { font-size: 13px; }
+    &__message { font-size: 12px; }
+  }
+}
+
+@media (max-width: 480px) {
+  .notif-item {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 320px) {
+  .notif-item {
+    padding: 8px 10px;
+    gap: 8px;
+
+    &__icon  { width: 28px; height: 28px; }
+    &__title { font-size: 12px; }
+    &__message { font-size: 11px; }
+  }
+}
+
+@media (max-width: 280px) {
+  .notif-item {
+    padding: 6px 8px;
+
+    &__icon { display: none; }
+  }
+}
+
+// ── RTL: Unread notification indicator ────────────────────────────────────
+:host-context([dir="rtl"]) .notif-item--unread {
+  border-left: none;
+  border-right: 3px solid var(--color-aegis-primary);
+}

@@ -1,0 +1,136 @@
+<div class="workspace-page page-enter">
+
+  <!-- Hero Banner -->
+  <div class="workspace-hero">
+    <div class="workspace-hero__saul">
+      <span class="material-icons">smart_toy</span>
+      <span class="saul-pulse"></span>
+    </div>
+    <div class="workspace-hero__text">
+      <h1>{{ lang.t('workspace.hero.title') }}</h1>
+      <p>{{ lang.t('workspace.hero.subtitle') }}</p>
+    </div>
+    <div class="workspace-hero__stats">
+      <div class="ws-stat">
+        <span class="ws-stat__value">{{ recentTools[0].uses + recentTools[1].uses + recentTools[2].uses + recentTools[3].uses }}</span>
+        <span class="ws-stat__label">{{ lang.t('workspace.stat.tool_uses') }}</span>
+      </div>
+      <div class="ws-stat">
+        <span class="ws-stat__value">{{ quickLinks.length }}</span>
+        <span class="ws-stat__label">{{ lang.t('workspace.stat.quick_actions') }}</span>
+      </div>
+      <div class="ws-stat">
+        <span class="ws-stat__value">{{ saulFeatures.length }}</span>
+        <span class="ws-stat__label">{{ lang.t('workspace.stat.ai_capabilities') }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column main layout -->
+  <div class="workspace-layout">
+
+    <!-- Left column -->
+    <div class="workspace-left">
+
+      <!-- Quick Actions -->
+      <div class="workspace-section">
+        <h2 class="workspace-section__title">
+          <span class="material-icons">bolt</span>
+          {{ lang.t('workspace.section.quick_actions') }}
+        </h2>
+        <div class="quick-links-grid">
+          <a *ngFor="let link of quickLinks" [routerLink]="link.route" class="quick-link-card">
+            <div class="quick-link-card__icon" [style.background]="link.color + '15'" [style.color]="link.color">
+              <span class="material-icons">{{ link.icon }}</span>
+            </div>
+            <div class="quick-link-card__info">
+              <strong>{{ link.label }}</strong>
+              <p>{{ link.desc }}</p>
+            </div>
+            <span class="material-icons quick-link-card__arrow">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Saul AI Capabilities -->
+      <div class="workspace-section">
+        <h2 class="workspace-section__title">
+          <span class="material-icons">smart_toy</span>
+          {{ lang.t('workspace.section.saul_ai') }}
+        </h2>
+        <div class="saul-features">
+          <div *ngFor="let feat of saulFeatures" class="saul-feature">
+            <span class="material-icons" [style.color]="feat.color">{{ feat.icon }}</span>
+            <div>
+              <strong>{{ feat.name }}</strong>
+              <p>{{ feat.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right column -->
+    <div class="workspace-right">
+
+      <!-- Recently Used Tools -->
+      <div class="workspace-section">
+        <h2 class="workspace-section__title">
+          <span class="material-icons">history</span>
+          {{ lang.t('workspace.section.recent_tools') }}
+        </h2>
+        <div class="tools-list">
+          <div *ngFor="let tool of recentTools; let i = index" class="tool-row">
+            <div class="tool-row__rank">{{ i + 1 }}</div>
+            <div class="tool-row__icon">
+              <span class="material-icons">{{ tool.icon }}</span>
+            </div>
+            <div class="tool-row__info">
+              <strong>{{ tool.name }}</strong>
+              <p>{{ tool.lastUsed }}</p>
+            </div>
+            <div class="tool-row__uses">
+              <span class="tool-badge">{{ tool.uses }}x</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Activity Overview -->
+      <div class="workspace-section">
+        <h2 class="workspace-section__title">
+          <span class="material-icons">analytics</span>
+          {{ lang.t('workspace.section.ai_activity') }}
+        </h2>
+        <div class="activity-overview">
+          <div *ngFor="let item of activityItems" class="activity-bar-row">
+            <div class="activity-bar-row__label">
+              <span class="material-icons" [style.color]="item.color">{{ item.icon }}</span>
+              {{ item.label }}
+            </div>
+            <div class="activity-bar-row__bar">
+              <div class="activity-bar-row__fill" [style.width]="item.pct + '%'" [style.background]="item.color"></div>
+            </div>
+            <span class="activity-bar-row__count">{{ item.count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Widget -->
+      <div class="workspace-status-card">
+        <div class="workspace-status-card__header">
+          <div class="status-dot status-dot--online"></div>
+          <strong>{{ lang.t('workspace.status.title') }}</strong>
+        </div>
+        <p>{{ lang.t('workspace.status.body') }}</p>
+        <a routerLink="/app/chat" class="btn-primary" style="margin-top:14px;display:inline-flex;">
+          <span class="material-icons">chat</span>
+          {{ lang.t('workspace.status.start') }}
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</div>

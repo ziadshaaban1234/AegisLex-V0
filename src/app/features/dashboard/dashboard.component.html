@@ -1,0 +1,358 @@
+<div class="dashboard page-enter">
+
+  <!-- Header -->
+  <div class="dashboard__header">
+    <div class="dashboard__welcome">
+      <h1 class="dashboard__title">
+        {{ greeting() }}, {{ currentUser()?.firstName }}
+        <span class="dashboard__wave">👋</span>
+      </h1>
+      <p class="dashboard__subtitle">
+        {{ lang.t('dashboard.header_subtitle') }}
+      </p>
+    </div>
+    <div class="dashboard__header-actions">
+      <a routerLink="/app/chat" class="btn-primary"
+         [attr.aria-label]="lang.t('dashboard.ask_saul')">
+        <span class="material-icons">smart_toy</span>
+        {{ lang.t('dashboard.ask_saul') }}
+      </a>
+      <a routerLink="/app/upload" class="btn-secondary"
+         [attr.aria-label]="lang.t('dashboard.upload_document')">
+        <span class="material-icons">upload_file</span>
+        {{ lang.t('dashboard.upload_document') }}
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  <!-- ░░ DASHBOARD SKELETON ░░ -->
+  <ng-container *ngIf="loading()">
+
+    <!-- Stat cards row — mirrors the 6 real stat cards -->
+    <div class="dashboard__stats-grid dsk-stats">
+      <div *ngFor="let i of [1,2,3,4,5,6]" class="dsk-stat-card">
+        <div class="dsk-stat-card__top">
+          <div class="sk sk--rounded" style="width:40px;height:40px;"></div>
+          <div class="sk sk--pill" style="width:52px;height:22px;"></div>
+        </div>
+        <div class="sk" style="width:55%;height:28px;border-radius:6px;margin-bottom:6px;"></div>
+        <div class="sk" style="width:78%;height:13px;border-radius:4px;"></div>
+      </div>
+    </div>
+
+    <!-- Content grid — mirrors saul card | recent cases -->
+    <div class="dashboard__content-grid">
+
+      <!-- Saul AI card skeleton -->
+      <div class="dsk-saul-card">
+        <div class="dsk-saul-card__inner">
+          <div class="sk sk--circle" style="width:48px;height:48px;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+            <div class="sk" style="width:60px;height:18px;border-radius:5px;"></div>
+            <div class="sk" style="width:140px;height:13px;border-radius:4px;"></div>
+          </div>
+          <div class="sk sk--rounded" style="width:100px;height:36px;flex-shrink:0;"></div>
+        </div>
+        <div class="dsk-saul-card__chips">
+          <div class="sk sk--pill" *ngFor="let c of [1,2,3,4]" style="height:32px;width:120px;"></div>
+        </div>
+      </div>
+
+      <!-- Recent cases card skeleton -->
+      <div class="dsk-cases-card">
+        <div class="dsk-card-header">
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div class="sk" style="width:130px;height:18px;border-radius:5px;"></div>
+            <div class="sk" style="width:200px;height:13px;border-radius:4px;"></div>
+          </div>
+          <div class="sk sk--pill" style="width:70px;height:28px;"></div>
+        </div>
+        <div class="dsk-case-row" *ngFor="let i of [1,2,3,4,5]">
+          <div class="sk" style="width:4px;height:44px;border-radius:4px;flex-shrink:0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
+            <div class="sk" [style.width]="(50 + i*7) + '%'" style="height:15px;border-radius:4px;"></div>
+            <div class="sk" style="width:38%;height:12px;border-radius:4px;"></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
+            <div class="sk sk--pill" style="width:72px;height:24px;"></div>
+            <div class="sk" style="width:52px;height:13px;border-radius:4px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts row skeleton -->
+      <div class="dashboard__charts-row">
+        <!-- Donut chart card -->
+        <div class="dsk-chart-card">
+          <div class="dsk-card-header">
+            <div class="sk" style="width:140px;height:17px;border-radius:5px;"></div>
+          </div>
+          <div class="dsk-donut-layout">
+            <div class="sk sk--circle" style="width:110px;height:110px;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+              <div *ngFor="let i of [1,2,3,4]" style="display:flex;align-items:center;gap:8px;">
+                <div class="sk sk--circle" style="width:10px;height:10px;flex-shrink:0;"></div>
+                <div class="sk" style="flex:1;height:13px;border-radius:4px;"></div>
+                <div class="sk" style="width:28px;height:13px;border-radius:4px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Bar chart card -->
+        <div class="dsk-chart-card">
+          <div class="dsk-card-header">
+            <div class="sk" style="width:160px;height:17px;border-radius:5px;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;padding:8px 0;">
+            <div *ngFor="let w of [75,60,88,45,70]" style="display:flex;align-items:center;gap:10px;">
+              <div class="sk" style="width:72px;height:13px;border-radius:4px;flex-shrink:0;"></div>
+              <div class="sk" style="height:10px;border-radius:100px;" [style.width]="w + '%'"></div>
+              <div class="sk" style="width:24px;height:13px;border-radius:4px;flex-shrink:0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick upload + activity -->
+      <div class="dsk-bottom-row">
+        <div class="dsk-upload-card">
+          <div class="dsk-card-header">
+            <div class="sk" style="width:110px;height:17px;border-radius:5px;"></div>
+          </div>
+          <div class="dsk-upload-zone">
+            <div class="sk sk--rounded" style="width:56px;height:56px;margin-bottom:12px;"></div>
+            <div class="sk" style="width:130px;height:15px;border-radius:5px;margin-bottom:8px;"></div>
+            <div class="sk" style="width:90px;height:12px;border-radius:4px;"></div>
+          </div>
+        </div>
+        <div class="dsk-activity-card">
+          <div class="dsk-card-header">
+            <div class="sk" style="width:120px;height:17px;border-radius:5px;"></div>
+          </div>
+          <div *ngFor="let i of [1,2,3,4,5]" class="dsk-activity-row">
+            <div class="sk sk--rounded" style="width:34px;height:34px;flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
+              <div class="sk" [style.width]="(55 + i*6) + '%'" style="height:14px;border-radius:4px;"></div>
+              <div class="sk" style="width:55px;height:11px;border-radius:4px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- Stats Grid -->
+  <div *ngIf="!loading()" class="dashboard__stats-grid stagger-children">
+    <div
+      *ngFor="let card of statCards()"
+      class="stat-card"
+      [style.--accent]="card.color"
+    >
+      <div class="stat-card__header">
+        <div class="stat-card__icon" [style.background]="card.bg" [style.color]="card.color"
+             [attr.aria-hidden]="true">
+          <span class="material-icons">{{ card.icon }}</span>
+        </div>
+        <span class="stat-card__change" [class.positive]="card.positive" [class.negative]="!card.positive">
+          <span class="material-icons">{{ card.positive ? 'trending_up' : 'trending_down' }}</span>
+          {{ card.change }}
+        </span>
+      </div>
+      <div class="stat-card__value">{{ card.value | number }}</div>
+      <div class="stat-card__label">{{ card.label }}</div>
+    </div>
+  </div>
+
+  <!-- Main content grid -->
+  <div class="dashboard__content-grid">
+
+    <!-- Saul AI Quick Access -->
+    <div class="dashboard__saul-card card">
+      <div class="saul-card__inner">
+        <div class="saul-card__avatar" aria-hidden="true">
+          <span class="material-icons">smart_toy</span>
+          <span class="saul-card__pulse"></span>
+        </div>
+        <div class="saul-card__info">
+          <h3 class="saul-card__name">Saul</h3>
+          <p class="saul-card__desc">{{ lang.t('dashboard.saul.desc') }}</p>
+        </div>
+        <a routerLink="/app/chat" class="saul-card__btn"
+           [attr.aria-label]="lang.t('dashboard.saul.start_chat_aria')">
+          {{ lang.t('dashboard.saul.start_chat') }} <span class="material-icons" aria-hidden="true">arrow_forward</span>
+        </a>
+      </div>
+      <div class="saul-card__suggestions">
+        <p class="saul-card__suggestions-label">{{ lang.t('dashboard.saul.quick_actions') }}</p>
+        <div class="saul-card__suggestion-chips">
+          <a routerLink="/app/chat" class="suggestion-chip">
+            <span class="material-icons" aria-hidden="true">analytics</span>
+            {{ lang.t('dashboard.saul.analyze_contract') }}
+          </a>
+          <a routerLink="/app/chat" class="suggestion-chip">
+            <span class="material-icons" aria-hidden="true">search</span>
+            {{ lang.t('dashboard.saul.find_similar') }}
+          </a>
+          <a routerLink="/app/chat" class="suggestion-chip">
+            <span class="material-icons" aria-hidden="true">description</span>
+            {{ lang.t('dashboard.saul.generate_report') }}
+          </a>
+          <a routerLink="/app/chat" class="suggestion-chip">
+            <span class="material-icons" aria-hidden="true">warning</span>
+            {{ lang.t('dashboard.saul.detect_risks') }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Cases -->
+    <div class="dashboard__recent-cases card">
+      <div class="card-header">
+        <div>
+          <h3 class="card-header__title">{{ lang.t('dashboard.recent_cases') }}</h3>
+          <p class="card-header__subtitle">{{ lang.t('dashboard.cases.subtitle') }}</p>
+        </div>
+        <a routerLink="/app/cases" class="card-header__link"
+           [attr.aria-label]="lang.t('dashboard.cases.view_all')">
+          {{ lang.t('dashboard.cases.view_all') }} <span class="material-icons" aria-hidden="true">arrow_forward</span>
+        </a>
+      </div>
+
+      <div *ngIf="recentCases().length === 0" class="empty-state-scale">
+        <app-scale-of-justice size="md" [muted]="true"></app-scale-of-justice>
+        <p>{{ lang.t('dashboard.cases.empty') }} <a routerLink="/app/cases/new">{{ lang.t('dashboard.cases.create_first') }}</a></p>
+      </div>
+
+      <div class="cases-list">
+        <a
+          *ngFor="let case_ of recentCases()"
+          [routerLink]="['/app/cases', case_.id]"
+          class="case-row"
+        >
+          <div class="case-row__priority-bar" [style.background]="getPriorityColor(case_.priority)"></div>
+          <div class="case-row__info">
+            <div class="case-row__title">{{ case_.title }}</div>
+            <div class="case-row__meta">
+              <span class="case-row__number">{{ case_.caseNumber }}</span>
+              <span class="case-row__client" *ngIf="case_.clientName">· {{ case_.clientName }}</span>
+            </div>
+          </div>
+          <div class="case-row__right">
+            <span class="badge" [class]="getStatusBadge(case_.status)">{{ getStatusLabel(case_.status) }}</span>
+            <span class="case-row__date">{{ formatDate(case_.updatedAt) }}</span>
+            <div *ngIf="case_.riskScore !== undefined" class="case-row__risk">
+              <div class="risk-gauge" [style.--score]="case_.riskScore + '%'">
+                <span [class]="case_.riskScore! >= 70 ? 'risk-critical' : case_.riskScore! >= 40 ? 'risk-medium' : 'risk-low'">
+                  {{ case_.riskScore }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Analytics Charts Row -->
+    <div class="dashboard__charts-row">
+
+      <!-- Cases by Status -->
+      <div class="dashboard__chart-card card">
+        <div class="card-header">
+          <h3 class="card-header__title">{{ lang.t('dashboard.chart.cases_by_status') }}</h3>
+        </div>
+        <div class="donut-chart-container" *ngIf="stats()">
+          <div class="donut-legend">
+            <div *ngFor="let item of stats()!.casesByStatus" class="donut-legend__item">
+              <span class="donut-legend__dot" [style.background]="item.color"></span>
+              <span class="donut-legend__label">{{ item.label }}</span>
+              <span class="donut-legend__value">{{ item.value }}</span>
+            </div>
+          </div>
+          <div class="donut-visual">
+            <svg viewBox="0 0 120 120" class="donut-svg"
+                 [attr.aria-label]="lang.t('dashboard.chart.cases_by_status')">
+              <!-- Background track -->
+              <circle cx="60" cy="60" r="45"
+                fill="none"
+                stroke="var(--color-border-primary)"
+                stroke-width="18"
+              />
+              <ng-container *ngFor="let seg of buildDonutSegments(stats()!.casesByStatus); trackBy: trackByIndex">
+                <circle
+                  [attr.cx]="60" [attr.cy]="60" r="45"
+                  fill="none"
+                  [attr.stroke]="seg.color"
+                  stroke-width="18"
+                  [attr.stroke-dasharray]="seg.dash"
+                  [attr.stroke-dashoffset]="seg.offset"
+                  transform="rotate(-90 60 60)"
+                  class="donut-segment"
+                />
+              </ng-container>
+              <text x="60" y="55" text-anchor="middle" class="donut-center-value">{{ stats()!.totalCases }}</text>
+              <text x="60" y="68" text-anchor="middle" class="donut-center-label">{{ lang.t('dashboard.chart.total_label') }}</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cases by Type -->
+      <div class="dashboard__chart-card card">
+        <div class="card-header">
+          <h3 class="card-header__title">{{ lang.t('dashboard.chart.cases_by_type') }}</h3>
+        </div>
+        <div class="bar-chart" *ngIf="stats()">
+          <div *ngFor="let item of stats()!.casesByType" class="bar-chart__row">
+            <span class="bar-chart__label">{{ item.label }}</span>
+            <div class="bar-chart__bar-wrap">
+              <div
+                class="bar-chart__bar"
+                [style.width.%]="(item.value / stats()!.totalCases) * 100"
+                [style.background]="item.color"
+              ></div>
+            </div>
+            <span class="bar-chart__value">{{ item.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Upload -->
+    <div class="dashboard__quick-upload card">
+      <div class="card-header">
+        <h3 class="card-header__title">{{ lang.t('dashboard.quick_upload') }}</h3>
+        <p class="card-header__subtitle">{{ lang.t('dashboard.upload.subtitle') }}</p>
+      </div>
+      <a routerLink="/app/upload" class="quick-upload-zone"
+         [attr.aria-label]="lang.t('dashboard.upload.cta')">
+        <div class="quick-upload-zone__icon" aria-hidden="true">
+          <span class="material-icons">cloud_upload</span>
+        </div>
+        <p class="quick-upload-zone__text">{{ lang.t('dashboard.upload.cta') }}</p>
+        <p class="quick-upload-zone__hint">{{ lang.t('dashboard.upload.hint') }}</p>
+      </a>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="dashboard__activity card">
+      <div class="card-header">
+        <h3 class="card-header__title">{{ lang.t('dashboard.activity') }}</h3>
+        <span class="badge badge-success">{{ lang.t('dashboard.activity.live_badge') }}</span>
+      </div>
+      <div class="activity-feed">
+        <div *ngFor="let act of mockActivity" class="activity-item">
+          <div class="activity-item__icon" [style.background]="act.bg" [style.color]="act.color"
+               aria-hidden="true">
+            <span class="material-icons">{{ act.icon }}</span>
+          </div>
+          <div class="activity-item__content">
+            <p class="activity-item__text">{{ act.text }}</p>
+            <span class="activity-item__time">{{ act.time }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

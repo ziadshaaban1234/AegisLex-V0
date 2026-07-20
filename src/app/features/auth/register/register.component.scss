@@ -1,0 +1,21 @@
+@use '../../../shared/styles/auth-shared' as *;
+
+// Remove duplicate step-indicator since it lives in _auth-shared now;
+// just keep any register-page-specific overrides
+
+// Form match msg (password match banner)
+.form-match-msg {
+  margin-top: 7px; font-size: 12.5px; color: #34d399;
+  display: flex; align-items: center; gap: 5px;
+  animation: errSlide 0.18s ease;
+  .material-icons { font-size: 14px; }
+}
+
+.form-label--optional {
+  font-size: 11px; font-weight: 400; color: rgba(200,215,255,0.32); letter-spacing: 0;
+}
+
+// Light-mode overrides for register-specific elements
+.auth-light {
+  .form-match-msg { color: #047857; }
+}

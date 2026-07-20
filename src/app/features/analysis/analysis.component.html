@@ -1,0 +1,416 @@
+<div class="analysis-page page-enter">
+
+  <!-- Header -->
+  <div class="analysis-header">
+    <a routerLink="/app/cases" class="back-link">
+      <span class="material-icons">arrow_back</span> {{ lang.t('analysis.page.back') }}
+    </a>
+    <div class="analysis-header__main">
+      <div>
+        <h1 class="section-title">{{ lang.t('analysis.page.title') }}</h1>
+        <p class="section-subtitle">{{ lang.t('analysis.page.subtitle') }}</p>
+      </div>
+      <div class="analysis-header__actions">
+        <button class="btn-secondary" (click)="runAnalysis()" [disabled]="analysisRunning()">
+          <div *ngIf="analysisRunning()" class="btn-spinner-sm"></div>
+          <span *ngIf="!analysisRunning()" class="material-icons">refresh</span>
+          {{ analysisRunning() ? lang.t('analysis.page.analyzing') : lang.t('analysis.page.re_analyze') }}
+        </button>
+        <a routerLink="/app/reports" class="btn-primary">
+          <span class="material-icons">description</span>
+          {{ lang.t('analysis.page.generate_report') }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <!-- Analysis skeleton — mirrors real analysis results layout -->
+  <div *ngIf="loading()" class="ansk-wrap">
+
+    <!-- Summary stat cards row (mirrors Risk, Clauses, Entities, Compliance) -->
+    <div class="ansk-stats">
+      <div *ngFor="let i of [1,2,3,4]" class="ansk-stat-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+          <div class="sk sk--rounded" style="width:38px;height:38px;"></div>
+          <div class="sk sk--pill" style="width:58px;height:22px;"></div>
+        </div>
+        <div class="sk" style="width:44px;height:26px;border-radius:6px;margin-bottom:6px;"></div>
+        <div class="sk" style="width:80%;height:12px;border-radius:4px;"></div>
+      </div>
+    </div>
+
+    <!-- Tab bar skeleton (Summary | Risks | Clauses | Entities | Recommendations) -->
+    <div class="ansk-tabs">
+      <div *ngFor="let t of [1,2,3,4,5,6]" class="sk sk--rounded" style="height:36px;width:110px;"></div>
+    </div>
+
+    <!-- Two-column content: main analysis + sidebar -->
+    <div class="ansk-content">
+
+      <!-- Main column: summary text + risk items -->
+      <div class="ansk-main">
+        <!-- Summary section -->
+        <div class="ansk-card">
+          <div class="ansk-card__header">
+            <div class="sk sk--rounded" style="width:32px;height:32px;flex-shrink:0;"></div>
+            <div class="sk" style="width:150px;height:18px;border-radius:5px;"></div>
+          </div>
+          <div class="ansk-card__body">
+            <div *ngFor="let w of [95,88,75,90,60]" class="sk" [style.width]="w + '%'" style="height:14px;border-radius:4px;margin-bottom:8px;"></div>
+            <div style="margin-top:8px;" *ngFor="let w of [82,70]" class="sk" [style.width]="w + '%'" style="height:14px;border-radius:4px;margin-bottom:8px;"></div>
+          </div>
+        </div>
+
+        <!-- Risk items section -->
+        <div class="ansk-card">
+          <div class="ansk-card__header">
+            <div class="sk sk--rounded" style="width:32px;height:32px;flex-shrink:0;"></div>
+            <div class="sk" style="width:120px;height:18px;border-radius:5px;"></div>
+            <div class="sk sk--pill" style="width:70px;height:24px;margin-left:auto;"></div>
+          </div>
+          <div *ngFor="let i of [1,2,3,4]" class="ansk-risk-row">
+            <div class="sk" style="width:4px;height:60px;border-radius:4px;flex-shrink:0;" [style.opacity]="0.5 + i * 0.1"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="sk sk--pill" style="width:68px;height:22px;"></div>
+                <div class="sk" [style.width]="(40 + i*10) + '%'" style="height:15px;border-radius:4px;"></div>
+              </div>
+              <div class="sk" [style.width]="(55 + i*6) + '%'" style="height:13px;border-radius:4px;"></div>
+              <div class="sk" style="width:45%;height:12px;border-radius:4px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right sidebar: document info + confidence -->
+      <div class="ansk-sidebar">
+        <div class="ansk-sidebar-card">
+          <div class="sk" style="width:110px;height:16px;border-radius:5px;margin-bottom:16px;"></div>
+          <div *ngFor="let r of [1,2,3,4]" style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--color-border-primary);">
+            <div class="sk" style="width:80px;height:13px;border-radius:4px;"></div>
+            <div class="sk" [style.width]="(50 + r*15) + 'px'" style="height:13px;border-radius:4px;"></div>
+          </div>
+        </div>
+        <div class="ansk-sidebar-card">
+          <div class="sk" style="width:130px;height:16px;border-radius:5px;margin-bottom:16px;"></div>
+          <div style="display:flex;justify-content:center;margin-bottom:16px;">
+            <div class="sk sk--circle" style="width:90px;height:90px;"></div>
+          </div>
+          <div *ngFor="let r of [1,2,3]" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div class="sk" style="width:90px;height:13px;border-radius:4px;"></div>
+            <div class="sk sk--pill" style="width:48px;height:22px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- No Analysis Yet -->
+  <div *ngIf="!loading() && !analysis()" class="analysis-empty">
+    <app-scale-of-justice size="lg" [muted]="true"></app-scale-of-justice>
+    <h3>{{ lang.t('analysis.page.empty_title') }}</h3>
+    <p>{{ lang.t('analysis.page.empty_desc') }}</p>
+    <button class="btn-primary" (click)="runAnalysis()">
+      <span class="material-icons">auto_awesome</span>
+      {{ lang.t('analysis.page.start_analysis') }}
+    </button>
+  </div>
+
+  <!-- Analysis Results -->
+  <ng-container *ngIf="!loading() && analysis()">
+
+    <!-- Risk Score Overview -->
+    <div class="risk-overview-cards">
+      <div class="risk-overview-card risk-overview-card--score">
+        <div class="risk-overview-card__label">{{ lang.t('analysis.overview.risk_score') }}</div>
+        <div class="risk-gauge-large">
+          <svg viewBox="0 0 120 70" class="risk-gauge-svg">
+            <path d="M10 60 A50 50 0 0 1 110 60" fill="none" stroke="var(--color-border-primary)" stroke-width="10" stroke-linecap="round"/>
+            <path d="M10 60 A50 50 0 0 1 110 60" fill="none"
+              [attr.stroke]="analysis()!.overallRiskScore >= 70 ? '#ef4444' : analysis()!.overallRiskScore >= 40 ? '#eab308' : '#22c55e'"
+              stroke-width="10" stroke-linecap="round"
+              [attr.stroke-dasharray]="(analysis()!.overallRiskScore / 100) * 157 + ' 157'"
+              stroke-dashoffset="0" />
+            <text x="60" y="55" text-anchor="middle" class="gauge-value">{{ analysis()!.overallRiskScore }}</text>
+            <text x="60" y="68" text-anchor="middle" class="gauge-label">/ 100</text>
+          </svg>
+        </div>
+        <div class="risk-overview-card__level"
+          [style.color]="analysis()!.overallRiskScore >= 70 ? '#ef4444' : analysis()!.overallRiskScore >= 40 ? '#eab308' : '#22c55e'">
+          {{ analysis()!.overallRiskScore >= 70 ? lang.t('analysis.overview.high_risk') : analysis()!.overallRiskScore >= 40 ? lang.t('analysis.overview.medium_risk') : lang.t('analysis.overview.low_risk') }}
+        </div>
+      </div>
+
+      <div class="risk-overview-card">
+        <div class="risk-overview-card__icon" style="color:#dc2626;background:rgba(220,38,38,0.1)">
+          <span class="material-icons">dangerous</span>
+        </div>
+        <div class="risk-overview-card__stat">{{ criticalRisksCount }}</div>
+        <div class="risk-overview-card__label">{{ lang.t('analysis.overview.critical') }}</div>
+      </div>
+
+      <div class="risk-overview-card">
+        <div class="risk-overview-card__icon" style="color:#ea580c;background:rgba(234,88,12,0.1)">
+          <span class="material-icons">warning</span>
+        </div>
+        <div class="risk-overview-card__stat">{{ highRisksCount }}</div>
+        <div class="risk-overview-card__label">{{ lang.t('analysis.overview.high') }}</div>
+      </div>
+
+      <div class="risk-overview-card">
+        <div class="risk-overview-card__icon" style="color:#8b5cf6;background:rgba(139,92,246,0.1)">
+          <span class="material-icons">compare_arrows</span>
+        </div>
+        <div class="risk-overview-card__stat">{{ analysis()!.contradictions?.length ?? 0 }}</div>
+        <div class="risk-overview-card__label">{{ lang.t('analysis.overview.contradictions') }}</div>
+      </div>
+
+      <div class="risk-overview-card">
+        <div class="risk-overview-card__icon" style="color:#22c55e;background:rgba(34,197,94,0.1)">
+          <span class="material-icons">lightbulb</span>
+        </div>
+        <div class="risk-overview-card__stat">{{ analysis()!.recommendations?.length ?? 0 }}</div>
+        <div class="risk-overview-card__label">{{ lang.t('analysis.overview.recommendations') }}</div>
+      </div>
+
+      <div class="risk-overview-card">
+        <div class="risk-overview-card__icon" style="color:#3b82f6;background:rgba(59,130,246,0.1)">
+          <span class="material-icons">account_tree</span>
+        </div>
+        <div class="risk-overview-card__stat">{{ analysis()!.entities?.length ?? 0 }}</div>
+        <div class="risk-overview-card__label">{{ lang.t('analysis.overview.entities') }}</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="analysis-tabs" role="tablist" [attr.aria-label]="lang.t('analysis.tabs.aria')">
+      <button
+        *ngFor="let tab of tabs"
+        class="analysis-tab"
+        [class.analysis-tab--active]="activeTab() === tab.id"
+        role="tab"
+        [attr.aria-selected]="activeTab() === tab.id"
+        (click)="activeTab.set(tab.id)"
+      >
+        <span class="material-icons" aria-hidden="true">{{ tab.icon }}</span>
+        {{ tab.label }}
+        <span *ngIf="tab.count && tab.count() > 0" class="analysis-tab__count"
+          [class.analysis-tab__count--danger]="tab.id === 'risks' && tab.count() > 0">
+          {{ tab.count() }}
+        </span>
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="analysis-content">
+
+      <!-- Summary -->
+      <div *ngIf="activeTab() === 'summary'" class="tab-panel" role="tabpanel">
+        <div class="summary-card">
+          <div class="summary-card__header">
+            <div class="saul-badge">
+              <span class="material-icons">smart_toy</span>
+              {{ lang.t('analysis.summary.saul_badge') }}
+            </div>
+          </div>
+          <p class="summary-card__text">{{ analysis()!.summary }}</p>
+          <div class="summary-card__footer">
+            <span class="material-icons">auto_awesome</span>
+            {{ lang.t('analysis.summary.generated_by') }} · {{ (analysis()!.completedAt || analysis()!.createdAt) | date:'medium' }}
+          </div>
+        </div>
+
+        <!-- Key Findings -->
+        <div class="key-findings">
+          <h3 class="key-findings__title">{{ lang.t('analysis.summary.key_findings') }}</h3>
+          <div class="key-findings__grid">
+            <div *ngFor="let risk of analysis()!.risks?.slice(0,3)" class="finding-card"
+              [style.border-left-color]="getRiskConfig(risk.severity).color">
+              <div class="finding-card__header">
+                <span class="material-icons" [style.color]="getRiskConfig(risk.severity).color">
+                  {{ getRiskConfig(risk.severity).icon }}
+                </span>
+                <span class="finding-severity" [style.color]="getRiskConfig(risk.severity).color"
+                  [style.background]="getRiskConfig(risk.severity).bg">
+                  {{ risk.severity | titlecase }}
+                </span>
+              </div>
+              <h4 class="finding-card__title">{{ risk.title }}</h4>
+              <p class="finding-card__desc">{{ risk.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risks -->
+      <div *ngIf="activeTab() === 'risks'" class="tab-panel" role="tabpanel">
+        <div *ngIf="analysis()!.risks?.length === 0" class="empty-state-sm">
+          <span class="material-icons">check_circle</span>
+          <p>{{ lang.t('analysis.risks.empty') }}</p>
+        </div>
+
+        <div class="risks-list">
+          <div
+            *ngFor="let risk of analysis()!.risks; trackBy: trackById"
+            class="risk-item"
+            [class.risk-item--expanded]="expandedRiskId() === risk.id"
+            [style.border-left-color]="getRiskConfig(risk.severity).color"
+            (click)="toggleRisk(risk.id)"
+          >
+            <div class="risk-item__header">
+              <div class="risk-item__left">
+                <div class="risk-item__icon" [style.background]="getRiskConfig(risk.severity).bg"
+                  [style.color]="getRiskConfig(risk.severity).color">
+                  <span class="material-icons">{{ getRiskConfig(risk.severity).icon }}</span>
+                </div>
+                <div class="risk-item__info">
+                  <div class="risk-item__top">
+                    <h4 class="risk-item__title">{{ risk.title }}</h4>
+                    <span class="severity-badge"
+                      [style.color]="getRiskConfig(risk.severity).color"
+                      [style.background]="getRiskConfig(risk.severity).bg">
+                      {{ risk.severity | titlecase }}
+                    </span>
+                    <span class="category-badge">{{ risk.category }}</span>
+                  </div>
+                  <p class="risk-item__desc">{{ risk.description }}</p>
+                  <div *ngIf="risk.affectedClauses?.length" class="risk-item__clauses">
+                    <span class="material-icons">article</span>
+                    {{ lang.t('analysis.risks.affects') }} {{ risk.affectedClauses.join(', ') }}
+                  </div>
+                </div>
+              </div>
+              <div class="risk-item__right">
+                <div class="confidence-badge">
+                  <span>{{ lang.t('analysis.risks.confidence', [(risk.confidence * 100).toFixed(0)]) }}</span>
+                </div>
+                <span class="material-icons risk-item__chevron">
+                  {{ expandedRiskId() === risk.id ? 'expand_less' : 'expand_more' }}
+                </span>
+              </div>
+            </div>
+
+            <div *ngIf="expandedRiskId() === risk.id" class="risk-item__expanded">
+              <div class="risk-recommendation">
+                <span class="material-icons">lightbulb</span>
+                <div>
+                  <strong>{{ lang.t('analysis.risks.recommendation') }}</strong>
+                  <p>{{ risk.recommendation }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clauses -->
+      <div *ngIf="activeTab() === 'clauses'" class="tab-panel" role="tabpanel">
+        <div class="clauses-list">
+          <div *ngFor="let clause of analysis()!.clauses; trackBy: trackById" class="clause-card">
+            <div class="clause-card__header">
+              <span class="clause-number">§{{ clause.clauseNumber }}</span>
+              <h4 class="clause-card__title">{{ clause.title }}</h4>
+              <span *ngIf="clause.risks?.length" class="clause-risk-count"
+                style="color:#ef4444;background:rgba(239,68,68,0.1)">
+                <span class="material-icons">warning</span>
+                {{ clause.risks.length }} {{ clause.risks.length > 1 ? lang.t('analysis.clauses.risks_plural') : lang.t('analysis.clauses.risks_singular') }}
+              </span>
+              <span *ngIf="clause.pageNumber" class="clause-page">p.{{ clause.pageNumber }}</span>
+            </div>
+            <p class="clause-card__summary">{{ clause.summary }}</p>
+            <div *ngIf="clause.content" class="clause-card__content">
+              <p>"{{ clause.content }}"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entities -->
+      <div *ngIf="activeTab() === 'entities'" class="tab-panel" role="tabpanel">
+        <div class="entities-grid">
+          <div *ngFor="let entity of analysis()!.entities; trackBy: trackById" class="entity-card">
+            <div class="entity-card__type">{{ entity.entityType | titlecase }}</div>
+            <div class="entity-card__name">{{ entity.name }}</div>
+            <div *ngIf="entity.attributes" class="entity-card__attrs">
+              <span *ngFor="let attr of getEntityAttributes(entity.attributes)" class="entity-attr">
+                {{ attr }}
+              </span>
+            </div>
+            <div class="entity-card__mentions">
+              {{ entity.mentions.length }} {{ entity.mentions.length !== 1 ? lang.t('analysis.entities.mentions_plural') : lang.t('analysis.entities.mentions_singular') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contradictions -->
+      <div *ngIf="activeTab() === 'contradictions'" class="tab-panel" role="tabpanel">
+        <div *ngIf="analysis()!.contradictions?.length === 0" class="empty-state-sm">
+          <span class="material-icons">check_circle</span>
+          <p>{{ lang.t('analysis.contradictions.empty') }}</p>
+        </div>
+
+        <div class="contradictions-list">
+          <div *ngFor="let c of analysis()!.contradictions; trackBy: trackById" class="contradiction-card"
+            [style.border-left-color]="getContradictionConfig(c.severity).color">
+            <div class="contradiction-card__header">
+              <span class="severity-badge"
+                [style.color]="getContradictionConfig(c.severity).color"
+                [style.background]="getContradictionConfig(c.severity).bg">
+                {{ c.severity | titlecase }}
+              </span>
+            </div>
+            <p class="contradiction-card__desc">{{ c.description }}</p>
+            <div class="contradiction-clauses">
+              <div class="contradiction-clause">
+                <span class="material-icons">article</span>
+                <strong>{{ c.clause1 }}</strong>
+              </div>
+              <span class="material-icons contradiction-vs">compare_arrows</span>
+              <div class="contradiction-clause">
+                <span class="material-icons">article</span>
+                <strong>{{ c.clause2 }}</strong>
+              </div>
+            </div>
+            <div class="contradiction-explanation">
+              <span class="material-icons">psychology</span>
+              <p>{{ c.explanation }}</p>
+            </div>
+            <div *ngIf="c.suggestion" class="contradiction-suggestion">
+              <span class="material-icons">lightbulb</span>
+              <p>{{ c.suggestion }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div *ngIf="activeTab() === 'recommendations'" class="tab-panel" role="tabpanel">
+        <div class="recommendations-list">
+          <div *ngFor="let rec of analysis()!.recommendations; trackBy: trackById" class="rec-card">
+            <div class="rec-card__header">
+              <div class="rec-card__priority"
+                [style.color]="getPriorityConfig(rec.priority).color"
+                [style.background]="getPriorityConfig(rec.priority).bg">
+                <span class="material-icons">flag</span>
+                {{ rec.priority | titlecase }}
+              </div>
+              <span class="rec-card__category">{{ rec.category }}</span>
+            </div>
+            <h4 class="rec-card__title">{{ rec.title }}</h4>
+            <p class="rec-card__desc">{{ rec.description }}</p>
+            <div class="rec-card__actions">
+              <strong>{{ lang.t('analysis.rec.action_items') }}</strong>
+              <ul>
+                <li *ngFor="let action of rec.actionItems">{{ action }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+</div>

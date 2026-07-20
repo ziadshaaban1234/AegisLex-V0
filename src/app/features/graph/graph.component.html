@@ -1,0 +1,121 @@
+<div class="graph-page page-enter">
+
+  <div class="graph-header">
+    <div>
+      <h1 class="section-title">{{ lang.t('graph.page.title') }}</h1>
+      <p class="section-subtitle">{{ lang.t('graph.page.subtitle') }}</p>
+    </div>
+    <a routerLink="/app/cases" class="btn-secondary">
+      <span class="material-icons">arrow_back</span> {{ lang.t('graph.back') }}
+    </a>
+  </div>
+
+  <!-- Graph Stats Bar -->
+  <div class="graph-stats-bar" *ngIf="!loading()">
+    <div class="graph-stat">
+      <span class="material-icons">hub</span>
+      <strong>{{ nodeCount() }}</strong> {{ lang.t('graph.stat.entities') }}
+    </div>
+    <div class="graph-stat">
+      <span class="material-icons">linear_scale</span>
+      <strong>{{ edgeCount() }}</strong> {{ lang.t('graph.stat.relationships') }}
+    </div>
+    <div class="graph-stat-divider"></div>
+
+    <!-- Node type legend -->
+    <div class="graph-legend">
+      <div *ngFor="let type of nodeTypes" class="legend-item">
+        <span class="legend-dot" [style.background]="nodeTypeColors[type]"></span>
+        {{ getNodeTypeLabel(type) }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Graph Controls — above graph for reliable visibility on all screen sizes -->
+  <div class="graph-controls" *ngIf="!loading()">
+    <div class="graph-controls__section">
+      <label class="graph-controls__label">{{ lang.t('graph.controls.layout') }}</label>
+      <div class="layout-buttons">
+        <button *ngFor="let l of layouts" class="layout-btn"
+          [class.layout-btn--active]="layout() === l.value"
+          (click)="changeLayout(l.value)" [title]="lang.t(l.label)" [attr.aria-label]="lang.t(l.label)">
+          <span class="material-icons">{{ l.icon }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="graph-controls__section">
+      <label class="graph-controls__label">{{ lang.t('graph.controls.zoom') }}</label>
+      <div class="zoom-buttons">
+        <button class="zoom-btn" (click)="zoomIn()" [title]="lang.t('graph.controls.zoom_in')" [attr.aria-label]="lang.t('graph.controls.zoom_in')">
+          <span class="material-icons">zoom_in</span>
+        </button>
+        <button class="zoom-btn" (click)="fitGraph()" [title]="lang.t('graph.controls.fit')" [attr.aria-label]="lang.t('graph.controls.fit')">
+          <span class="material-icons">fit_screen</span>
+        </button>
+        <button class="zoom-btn" (click)="zoomOut()" [title]="lang.t('graph.controls.zoom_out')" [attr.aria-label]="lang.t('graph.controls.zoom_out')">
+          <span class="material-icons">zoom_out</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graph Container -->
+  <div class="graph-wrapper">
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="graph-loading">
+      <div class="graph-loading__spinner">
+        <span class="material-icons">hub</span>
+      </div>
+      <p>{{ lang.t('graph.loading') }}</p>
+    </div>
+
+    <!-- Cytoscape Container -->
+    <div #graphContainer class="graph-canvas" [class.graph-canvas--loading]="loading()"></div>
+
+    <!-- Selection Info Panel -->
+    <div *ngIf="selectedNode()" class="graph-info-panel">
+      <div class="graph-info-panel__header">
+        <div class="graph-info-panel__dot"
+          [style.background]="nodeTypeColors[selectedNode()!.type]">
+        </div>
+        <h4>{{ selectedNode()!.label }}</h4>
+        <button class="graph-info-panel__close" (click)="selectedNode.set(null)" [attr.aria-label]="lang.t('graph.info.close_node')">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="graph-info-panel__body">
+        <div class="graph-info-row">
+          <span>{{ lang.t('graph.info.type') }}</span>
+          <strong>{{ getNodeTypeLabel(selectedNode()!.type) }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedEdge()" class="graph-info-panel">
+      <div class="graph-info-panel__header">
+        <span class="material-icons" style="color:var(--color-aegis-primary)">linear_scale</span>
+        <h4>{{ lang.t('graph.info.relationship') }}</h4>
+        <button class="graph-info-panel__close" (click)="selectedEdge.set(null)" [attr.aria-label]="lang.t('graph.info.close_edge')">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="graph-info-panel__body">
+        <div class="graph-info-row">
+          <span>{{ lang.t('graph.info.type') }}</span>
+          <strong>{{ capitalize(replaceUnderscores(selectedEdge()!.label)) }}</strong>
+        </div>
+        <div class="graph-info-row">
+          <span>{{ lang.t('graph.info.strength') }}</span>
+          <div class="strength-bar">
+            <div class="strength-bar__fill"
+              [style.width.%]="selectedEdge()!.strength * 100">
+            </div>
+            <span>{{ (selectedEdge()!.strength * 100).toFixed(0) }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
